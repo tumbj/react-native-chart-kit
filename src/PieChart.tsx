@@ -17,6 +17,7 @@ export interface PieChartProps extends AbstractChartProps {
   hasLegend?: boolean;
   style?: Partial<ViewStyle>;
   avoidFalseZero?: boolean;
+  legendGap?: number;
 }
 
 type PieChartState = {};
@@ -28,7 +29,8 @@ class PieChart extends AbstractChart<PieChartProps, PieChartState> {
       backgroundColor,
       absolute = false,
       hasLegend = true,
-      avoidFalseZero = false
+      avoidFalseZero = false,
+      legendGap = 0.8
     } = this.props;
 
     const { borderRadius = 0 } = style;
@@ -81,7 +83,7 @@ class PieChart extends AbstractChart<PieChartProps, PieChartState> {
               x={this.props.width / 2.5 - 24}
               y={
                 -(this.props.height / 2.5) +
-                ((this.props.height * 0.8) / this.props.data.length) * i +
+                ((this.props.height * legendGap) / this.props.data.length) * i +
                 12
               }
             />
@@ -93,7 +95,7 @@ class PieChart extends AbstractChart<PieChartProps, PieChartState> {
               x={this.props.width / 2.5}
               y={
                 -(this.props.height / 2.5) +
-                ((this.props.height * 0.8) / this.props.data.length) * i +
+                ((this.props.height * legendGap) / this.props.data.length) * i +
                 12 * 2
               }
             >
