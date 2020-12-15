@@ -18,8 +18,12 @@ import { ChartData } from "./HelperTypes";
 
 const barWidth = 32;
 
+export interface BarChartData extends ChartData {
+  gradientColors?: Array<Element>;
+}
+
 export interface BarChartProps extends AbstractChartProps {
-  data: ChartData;
+  data: BarChartData;
   width: number;
   height: number;
   fromZero?: boolean;
@@ -63,16 +67,19 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     paddingTop,
     paddingRight,
     barRadius,
-    withCustomBarColorFromData
+    withCustomBarColorFromData,
+    withLinearGradient,
+    colors
   }: Pick<
     Omit<AbstractChartConfig, "data">,
-    "width" | "height" | "paddingRight" | "paddingTop" | "barRadius"
+    "width" | "height" | "paddingRight" | "paddingTop" | "barRadius" | "color"
   > & {
     data: number[];
     withCustomBarColorFromData: boolean;
+    withLinearGradient?: boolean;
+    colors?: ((opacity: number) => string)[];
   }) => {
     const baseHeight = this.calcBaseHeight(data, height);
-
     return data.map((x, i) => {
       const barHeight = this.calcHeight(x, data, height);
       const barWidth = 32 * this.getBarPercentage();
@@ -93,7 +100,9 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
           height={(Math.abs(barHeight) / 4) * 3}
           fill={
             withCustomBarColorFromData
-              ? `url(#customColor_0_${i})`
+              ? withLinearGradient
+                ? colors[i](1).toString()
+                : `url(#customColor_0_${i})`
               : "url(#fillShadowGradient)"
           }
         />
@@ -137,34 +146,45 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
 
   renderColors = ({
     data,
-    flatColor
+    flatColor,
+    withLinearGradient
   }: Pick<AbstractChartConfig, "data"> & {
     flatColor: boolean;
+    withLinearGradient?: boolean;
   }) => {
     return data.map((dataset, index) => (
-      <Defs>
-        {dataset.colors?.map((color, colorIndex) => {
-          const highOpacityColor = color(1.0);
-          const lowOpacityColor = color(0.1);
+      <Defs key={"renderColorsKey"}>
+        {!withLinearGradient &&
+          dataset.colors?.map((color, colorIndex) => {
+            const highOpacityColor = color(1.0);
+            const lowOpacityColor = color(0.1);
 
-          return (
-            <LinearGradient
-              id={`customColor_${index}_${colorIndex}`}
-              key={`${index}_${colorIndex}`}
-              x1={0}
-              y1={0}
-              x2={0}
-              y2={1}
-            >
-              <Stop offset="0" stopColor={highOpacityColor} stopOpacity="1" />
-              {flatColor ? (
-                <Stop offset="1" stopColor={highOpacityColor} stopOpacity="1" />
-              ) : (
-                <Stop offset="1" stopColor={lowOpacityColor} stopOpacity="0" />
-              )}
-            </LinearGradient>
-          );
-        })}
+            return (
+              <LinearGradient
+                id={`customColor_${index}_${colorIndex}`}
+                key={`${index}_${colorIndex}`}
+                x1={0}
+                y1={0}
+                x2={0}
+                y2={1}
+              >
+                <Stop offset="0" stopColor={highOpacityColor} stopOpacity="1" />
+                {flatColor ? (
+                  <Stop
+                    offset="1"
+                    stopColor={highOpacityColor}
+                    stopOpacity="1"
+                  />
+                ) : (
+                  <Stop
+                    offset="1"
+                    stopColor={lowOpacityColor}
+                    stopOpacity="0"
+                  />
+                )}
+              </LinearGradient>
+            );
+          })}
       </Defs>
     ));
   };
@@ -253,9 +273,11 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
             ...config,
             ...this.props.chartConfig
           })}
+          <Defs>{data.gradientColors}</Defs>
           {this.renderColors({
             ...this.props.chartConfig,
-            flatColor: flatColor
+            flatColor: flatColor,
+            withLinearGradient: data.gradientColors ? true : false
           })}
           <Rect
             width="100%"
@@ -301,7 +323,9 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
               data: data.datasets[0].data,
               paddingTop: paddingTop as number,
               paddingRight: paddingRight as number,
-              withCustomBarColorFromData: withCustomBarColorFromData
+              withCustomBarColorFromData: withCustomBarColorFromData,
+              withLinearGradient: data.gradientColors ? true : false,
+              colors: data.datasets[0].colors
             })}
           </G>
           <G>
