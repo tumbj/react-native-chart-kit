@@ -18,6 +18,8 @@ export interface PieChartProps extends AbstractChartProps {
   style?: Partial<ViewStyle>;
   avoidFalseZero?: boolean;
   legendGap?: number;
+  legendMarginTop?: number;
+  isLegendValueShowFirst?: boolean;
 }
 
 type PieChartState = {};
@@ -30,7 +32,9 @@ class PieChart extends AbstractChart<PieChartProps, PieChartState> {
       absolute = false,
       hasLegend = true,
       avoidFalseZero = false,
-      legendGap = 0.8
+      legendGap = 0.8,
+      legendMarginTop = 12,
+      isLegendValueShowFirst = false
     } = this.props;
 
     const { borderRadius = 0 } = style;
@@ -84,7 +88,7 @@ class PieChart extends AbstractChart<PieChartProps, PieChartState> {
               y={
                 -(this.props.height / 2.5) +
                 ((this.props.height * legendGap) / this.props.data.length) * i +
-                12
+                legendMarginTop
               }
             />
           ) : null}
@@ -96,10 +100,13 @@ class PieChart extends AbstractChart<PieChartProps, PieChartState> {
               y={
                 -(this.props.height / 2.5) +
                 ((this.props.height * legendGap) / this.props.data.length) * i +
-                12 * 2
+                legendMarginTop +
+                14
               }
             >
-              {`${value} ${c.item.name}`}
+              {isLegendValueShowFirst
+                ? `${c.item.name} ${value}`
+                : `${value} ${c.item.name}`}
             </Text>
           ) : null}
         </G>
