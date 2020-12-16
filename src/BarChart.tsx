@@ -4,6 +4,7 @@ import {
   Defs,
   G,
   LinearGradient,
+  Path,
   Rect,
   Stop,
   Svg,
@@ -20,6 +21,16 @@ const barWidth = 32;
 
 export interface BarChartData extends ChartData {
   gradientColors?: Array<Element>;
+}
+
+export interface BubbleTextData {
+  width?: number;
+  height?: number;
+  color?: string;
+  fontSize?: number;
+  textColor?: string;
+  textSuffix?: string;
+  bubleOffset?: number;
 }
 
 export interface BarChartProps extends AbstractChartProps {
@@ -50,6 +61,11 @@ export interface BarChartProps extends AbstractChartProps {
   showValuesOnTopOfBars?: boolean;
   withCustomBarColorFromData?: boolean;
   flatColor?: boolean;
+  /**
+   * Fact for show bubble text when press each bar chart
+   */
+  isShowBubbleText?: boolean; //default is false
+  bubbleTextConfig?: BubbleTextData;
 }
 
 type BarChartState = {};
@@ -58,6 +74,75 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
   getBarPercentage = () => {
     const { barPercentage = 1 } = this.props.chartConfig;
     return barPercentage;
+  };
+
+  state = {
+    barIndex: -1
+  };
+
+  renderBubbleText = (
+    xAxis: number,
+    yAxis: number,
+    textData: string,
+    {
+      width = 71,
+      height = 33.2501,
+      color = "#00214E",
+      textColor = "#FFFFFF",
+      fontSize = 12,
+      textSuffix = "",
+      bubleOffset = 41
+    }: BubbleTextData
+  ) => {
+    return (
+      <G>
+        <Rect
+          key={Math.random()}
+          x={
+            // paddingRight + (i * (width - paddingRight)) / data.length -10
+            xAxis
+          }
+          y={
+            // ((baseHeight - barHeight) / 4) * 3 + paddingTop - bubleOffset
+            yAxis - bubleOffset
+          }
+          width={width}
+          height={height}
+          fill={color}
+        />
+        <Text
+          key={Math.random()}
+          x={
+            // paddingRight +
+            // (i * (width - paddingRight)) / data.length +
+            xAxis + width / 2
+          }
+          y={
+            // ((baseHeight - barHeight) / 4) * 3 + paddingTop - 1
+            yAxis - bubleOffset + height / 2 + 2
+          }
+          stroke={textColor}
+          fontSize={fontSize}
+          textAnchor="middle"
+          // fontStyle="normal"
+          // fontWeight="normal"
+          // fontFamily="Sarabun"
+        >
+          {`${textData} ${textSuffix}`}
+        </Text>
+        {/* <G x={paddingRight + (i * (width - paddingRight)) / data.length -10} y={((baseHeight - barHeight) / 4) * 3 + paddingTop - bubleOffset}> */}
+        <G x={xAxis} y={yAxis - bubleOffset}>
+          <Path
+            d="M35 42.459L31.5359 34.1465L38.4641 34.1465L35 42.459Z"
+            fill={color}
+          />
+        </G>
+      </G>
+    );
+  };
+
+  numberWithCommas = (x: number) => {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
   renderBars = ({
@@ -80,32 +165,46 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     colors?: ((opacity: number) => string)[];
   }) => {
     const baseHeight = this.calcBaseHeight(data, height);
+    // const { bubbleWidth=71 , bubbleHeight=33.2501, bubbleColor="#00214E", bubbleFontSize=12, bubbleTextColor="#FFFFFF", bubleOffset=41, bubbleTextSuffix='' } = this.props.bubbleTextConfig!;
     return data.map((x, i) => {
       const barHeight = this.calcHeight(x, data, height);
       const barWidth = 32 * this.getBarPercentage();
+      const xAxis =
+        paddingRight +
+        (i * (width - paddingRight)) / data.length +
+        barWidth / 2;
+      const yAxis =
+        ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
+        paddingTop;
       return (
-        <Rect
-          key={Math.random()}
-          x={
-            paddingRight +
-            (i * (width - paddingRight)) / data.length +
-            barWidth / 2
-          }
-          y={
-            ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
-            paddingTop
-          }
-          rx={barRadius}
-          width={barWidth}
-          height={(Math.abs(barHeight) / 4) * 3}
-          fill={
-            withCustomBarColorFromData
-              ? withLinearGradient
-                ? colors[i](1).toString()
-                : `url(#customColor_0_${i})`
-              : "url(#fillShadowGradient)"
-          }
-        />
+        <G key={Math.random()}>
+          {this.props.isShowBubbleText &&
+            this.state.barIndex === i &&
+            this.renderBubbleText(
+              xAxis - barWidth / 2 - 10,
+              yAxis,
+              this.numberWithCommas(x),
+              this.props.bubbleTextConfig ? this.props.bubbleTextConfig : {}
+            )}
+          <Rect
+            key={Math.random()}
+            x={xAxis}
+            y={yAxis}
+            rx={barRadius}
+            width={barWidth}
+            height={(Math.abs(barHeight) / 4) * 3}
+            fill={
+              withCustomBarColorFromData
+                ? withLinearGradient
+                  ? colors[i](1).toString()
+                  : `url(#customColor_0_${i})`
+                : "url(#fillShadowGradient)"
+            }
+            // onPress={onPress ? () => onPress(xAxis, yAxis) : () => {}}
+            onPress={() => this.setState({ barIndex: i })}
+            // onPress={(data)=>{console.log('yAxis',yAxis)}}
+          />
+        </G>
       );
     });
   };
