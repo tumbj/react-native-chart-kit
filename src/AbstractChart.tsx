@@ -13,6 +13,7 @@ export interface AbstractChartProps {
   xAxisLabel?: string;
   xLabelsOffset?: number;
   hidePointsAtIndex?: number[];
+  goalPoint?: number;
 }
 
 export interface AbstractChartConfig extends ChartConfig {
@@ -58,19 +59,20 @@ class AbstractChart<
   };
 
   calcHeight = (val: number, data: number[], height: number) => {
-    const max = Math.max(...data);
-    const min = Math.min(...data);
-
+    let newData = [...data];
+    this.props.goalPoint ? newData.push(this.props.goalPoint) : null;
+    const max = Math.max(...newData);
+    const min = Math.min(...newData);
     if (min < 0 && max > 0) {
-      return height * (val / this.calcScaler(data));
+      return height * (val / this.calcScaler(newData));
     } else if (min >= 0 && max >= 0) {
       return this.props.fromZero
-        ? height * (val / this.calcScaler(data))
-        : height * ((val - min) / this.calcScaler(data));
+        ? height * (val / this.calcScaler(newData))
+        : height * ((val - min) / this.calcScaler(newData));
     } else if (min < 0 && max <= 0) {
       return this.props.fromZero
-        ? height * (val / this.calcScaler(data))
-        : height * ((val - max) / this.calcScaler(data));
+        ? height * (val / this.calcScaler(newData))
+        : height * ((val - max) / this.calcScaler(newData));
     }
   };
 
