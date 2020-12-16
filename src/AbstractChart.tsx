@@ -47,14 +47,16 @@ class AbstractChart<
   };
 
   calcBaseHeight = (data: number[], height: number) => {
-    const min = Math.min(...data);
-    const max = Math.max(...data);
+    let newData = [...data];
+    this.props.goalPoint ? newData.push(this.props.goalPoint) : null;
+    const min = Math.min(...newData);
+    const max = Math.max(...newData);
     if (min >= 0 && max >= 0) {
       return height;
     } else if (min < 0 && max <= 0) {
       return 0;
     } else if (min < 0 && max > 0) {
-      return (height * max) / this.calcScaler(data);
+      return (height * max) / this.calcScaler(newData);
     }
   };
 
