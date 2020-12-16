@@ -98,39 +98,22 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
       <G>
         <Rect
           key={Math.random()}
-          x={
-            // paddingRight + (i * (width - paddingRight)) / data.length -10
-            xAxis
-          }
-          y={
-            // ((baseHeight - barHeight) / 4) * 3 + paddingTop - bubleOffset
-            yAxis - bubleOffset
-          }
+          x={xAxis}
+          y={yAxis - bubleOffset}
           width={width}
           height={height}
           fill={color}
         />
         <Text
           key={Math.random()}
-          x={
-            // paddingRight +
-            // (i * (width - paddingRight)) / data.length +
-            xAxis + width / 2
-          }
-          y={
-            // ((baseHeight - barHeight) / 4) * 3 + paddingTop - 1
-            yAxis - bubleOffset + height / 2 + 2
-          }
+          x={xAxis + width / 2}
+          y={yAxis - bubleOffset + height / 2 + 2}
           stroke={textColor}
           fontSize={fontSize}
           textAnchor="middle"
-          // fontStyle="normal"
-          // fontWeight="normal"
-          // fontFamily="Sarabun"
         >
           {`${textData} ${textSuffix}`}
         </Text>
-        {/* <G x={paddingRight + (i * (width - paddingRight)) / data.length -10} y={((baseHeight - barHeight) / 4) * 3 + paddingTop - bubleOffset}> */}
         <G x={xAxis} y={yAxis - bubleOffset}>
           <Path
             d="M35 42.459L31.5359 34.1465L38.4641 34.1465L35 42.459Z"
@@ -165,7 +148,6 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     colors?: ((opacity: number) => string)[];
   }) => {
     const baseHeight = this.calcBaseHeight(data, height);
-    // const { bubbleWidth=71 , bubbleHeight=33.2501, bubbleColor="#00214E", bubbleFontSize=12, bubbleTextColor="#FFFFFF", bubleOffset=41, bubbleTextSuffix='' } = this.props.bubbleTextConfig!;
     return data.map((x, i) => {
       const barHeight = this.calcHeight(x, data, height);
       const barWidth = 32 * this.getBarPercentage();
@@ -200,9 +182,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                   : `url(#customColor_0_${i})`
                 : "url(#fillShadowGradient)"
             }
-            // onPress={onPress ? () => onPress(xAxis, yAxis) : () => {}}
             onPress={() => this.setState({ barIndex: i })}
-            // onPress={(data)=>{console.log('yAxis',yAxis)}}
           />
         </G>
       );
