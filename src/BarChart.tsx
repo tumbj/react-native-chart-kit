@@ -139,6 +139,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
   renderBubbleText = (
     xAxis: number,
     yAxis: number,
+    xPolygon: number,
     textData: string,
     {
       width = 71,
@@ -163,7 +164,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
         >
           {`${textData} ${textSuffix}`}
         </Text>
-        <G x={width * 0.5 - width * 0.0625} y={height}>
+        <G x={xPolygon} y={height}>
           <Polygon
             points="4,6 0.536,0 7.464,0 4,6"
             fill={color}
@@ -179,6 +180,25 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
+  getSuitXAxisOfBar = (
+    x: number,
+    start: number,
+    end: number,
+    bubbleWidth: number,
+    barWidth: number
+  ) => {
+    const cal: number = x - (bubbleWidth / 2 - barWidth / 2);
+    if (cal >= start && cal + bubbleWidth <= end) {
+      return {
+        xBubble: cal,
+        xPolygon: bubbleWidth * 0.5 - bubbleWidth * 0.0625
+      };
+    } else if (cal < start) {
+      return { xBubble: x, xPolygon: 0 };
+    }
+    return { xBubble: x - bubbleWidth + barWidth, xPolygon: bubbleWidth - 8 }; // 8 is size of polygon
+  };
+
   renderBars = ({
     data,
     width,
@@ -189,7 +209,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     withCustomBarColorFromData,
     withLinearGradient,
     colors,
-    barPaddingTop
+    barPaddingTop,
+    bubbleWidth = 71
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop" | "barRadius" | "color"
@@ -199,8 +220,10 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     withLinearGradient?: boolean;
     colors?: ((opacity: number) => string)[];
     barPaddingTop: number;
+    bubbleWidth?: number;
   }) => {
     const baseHeight = this.calcBaseHeight(data, height);
+    const endPoint = width - paddingRight;
     return data.map((x, i) => {
       const barHeight = this.calcHeight(x, data, height);
       const barWidth = 32 * this.getBarPercentage();
@@ -212,13 +235,26 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
         ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
         paddingTop +
         barPaddingTop;
+      const bubbleWidth = this.props.bubbleTextConfig
+        ? this.props.bubbleTextConfig.width
+          ? this.props.bubbleTextConfig.width
+          : 71
+        : 71;
+      const bubbleTextXAxis = this.getSuitXAxisOfBar(
+        xAxis,
+        paddingRight,
+        endPoint,
+        bubbleWidth,
+        barWidth
+      );
       return (
         <G key={Math.random()}>
           {this.props.isShowBubbleText &&
             this.state.barIndex === i &&
             this.renderBubbleText(
-              xAxis - barWidth / 2 - 10,
+              bubbleTextXAxis.xBubble,
               yAxis,
+              bubbleTextXAxis.xPolygon,
               this.numberWithCommas(x),
               this.props.bubbleTextConfig ? this.props.bubbleTextConfig : {}
             )}
