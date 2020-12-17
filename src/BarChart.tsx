@@ -85,6 +85,11 @@ export interface BarChartProps extends AbstractChartProps {
    */
   threshold?: number;
   thresholdConfig?: ThresholdConfigData;
+  /**
+   * Under bar line of bar chart
+   */
+  isShowUnderBarLine?: boolean;
+  underBarLineColor?: string;
 }
 
 type BarChartState = {};
@@ -387,6 +392,34 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     );
   };
 
+  renderUnderBarLine = ({
+    data,
+    width,
+    height,
+    paddingTop,
+    paddingRight,
+    lineColor
+  }: Pick<
+    Omit<AbstractChartConfig, "data">,
+    "width" | "height" | "paddingRight" | "paddingTop"
+  > & {
+    data: number[];
+    lineColor: string;
+  }) => {
+    const baseHeight = this.calcBaseHeight(data, height);
+    const barHeight = this.calcHeight(0, data, height);
+    const barWidth = 32 * this.getBarPercentage();
+    const yAxis =
+      ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
+      paddingTop;
+    const lineWidth = width - paddingRight - barWidth * 0.5;
+    return (
+      <G x={paddingRight} y={yAxis}>
+        <Line x2={lineWidth} stroke={lineColor} />
+      </G>
+    );
+  };
+
   renderValuesOnTopOfBars = ({
     data,
     width,
@@ -441,7 +474,9 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
       segments = 4,
       barPaddingTop = 0,
       threshold = false,
-      thresholdConfig = {}
+      thresholdConfig = {},
+      isShowUnderBarLine = false,
+      underBarLineColor = "#000000"
     } = this.props;
 
     const { borderRadius = 0, paddingTop = 16, paddingRight = 64 } = style;
@@ -541,6 +576,17 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
               colors: data.datasets[0].colors,
               barPaddingTop: barPaddingTop
             })}
+          </G>
+          <G>
+            {isShowUnderBarLine
+              ? this.renderUnderBarLine({
+                  ...config,
+                  data: data.datasets[0].data,
+                  paddingTop: (paddingTop as number) + barPaddingTop,
+                  paddingRight: paddingRight as number,
+                  lineColor: underBarLineColor
+                })
+              : null}
           </G>
           <G>
             {showValuesOnTopOfBars &&
