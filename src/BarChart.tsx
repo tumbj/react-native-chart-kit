@@ -152,7 +152,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     }: BubbleTextData
   ) => {
     return (
-      <G x={xAxis} y={yAxis - bubleOffset}>
+      <G key={Math.random()} x={xAxis} y={yAxis - bubleOffset}>
         <Rect key={Math.random()} width={width} height={height} fill={color} />
         <Text
           key={Math.random()}
@@ -209,8 +209,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     withCustomBarColorFromData,
     withLinearGradient,
     colors,
-    barPaddingTop,
-    bubbleWidth = 71
+    barPaddingTop
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop" | "barRadius" | "color"
@@ -220,13 +219,12 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     withLinearGradient?: boolean;
     colors?: ((opacity: number) => string)[];
     barPaddingTop: number;
-    bubbleWidth?: number;
   }) => {
     const baseHeight = this.calcBaseHeight(data, height);
-    const endPoint = width - paddingRight;
+    const barWidth = 32 * this.getBarPercentage();
+
     return data.map((x, i) => {
       const barHeight = this.calcHeight(x, data, height);
-      const barWidth = 32 * this.getBarPercentage();
       const xAxis =
         paddingRight +
         (i * (width - paddingRight)) / data.length +
@@ -235,29 +233,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
         ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
         paddingTop +
         barPaddingTop;
-      const bubbleWidth = this.props.bubbleTextConfig
-        ? this.props.bubbleTextConfig.width
-          ? this.props.bubbleTextConfig.width
-          : 71
-        : 71;
-      const bubbleTextXAxis = this.getSuitXAxisOfBar(
-        xAxis,
-        paddingRight,
-        endPoint,
-        bubbleWidth,
-        barWidth
-      );
       return (
         <G key={Math.random()}>
-          {this.props.isShowBubbleText &&
-            this.state.barIndex === i &&
-            this.renderBubbleText(
-              bubbleTextXAxis.xBubble,
-              yAxis,
-              bubbleTextXAxis.xPolygon,
-              this.numberWithCommas(x),
-              this.props.bubbleTextConfig ? this.props.bubbleTextConfig : {}
-            )}
           <Rect
             key={Math.random()}
             x={xAxis}
@@ -276,6 +253,60 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
           />
         </G>
       );
+    });
+  };
+
+  renderBubble = ({
+    data,
+    width,
+    height,
+    paddingTop,
+    paddingRight,
+    barPaddingTop,
+    bubbleWidth = 71
+  }: Pick<
+    Omit<AbstractChartConfig, "data">,
+    "width" | "height" | "paddingRight" | "paddingTop"
+  > & {
+    data: number[];
+    barPaddingTop: number;
+    bubbleWidth?: number;
+  }) => {
+    const baseHeight = this.calcBaseHeight(data, height);
+    const endPoint = width - paddingRight;
+    return data.map((x, i) => {
+      if (this.state.barIndex === i) {
+        const barHeight = this.calcHeight(x, data, height);
+        const barWidth = 32 * this.getBarPercentage();
+        const xAxis =
+          paddingRight +
+          (i * (width - paddingRight)) / data.length +
+          barWidth / 2;
+        const yAxis =
+          ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
+          paddingTop +
+          barPaddingTop;
+        const bubbleWidth = this.props.bubbleTextConfig
+          ? this.props.bubbleTextConfig.width
+            ? this.props.bubbleTextConfig.width
+            : 71
+          : 71;
+        const bubbleTextXAxis = this.getSuitXAxisOfBar(
+          xAxis,
+          paddingRight,
+          endPoint,
+          bubbleWidth,
+          barWidth
+        );
+
+        return this.renderBubbleText(
+          bubbleTextXAxis.xBubble,
+          yAxis,
+          bubbleTextXAxis.xPolygon,
+          this.numberWithCommas(x),
+          this.props.bubbleTextConfig ? this.props.bubbleTextConfig : {}
+        );
+      } else return;
     });
   };
 
@@ -507,7 +538,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
       threshold = false,
       thresholdConfig = {},
       isShowUnderBarLine = false,
-      underBarLineColor = "#000000"
+      underBarLineColor = "#000000",
+      isShowBubbleText = false
     } = this.props;
 
     const { borderRadius = 0, paddingTop = 16, paddingRight = 64 } = style;
@@ -635,6 +667,16 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                 data: data.datasets[0].data,
                 paddingTop: (paddingTop as number) + barPaddingTop,
                 paddingRight: paddingRight as number
+              })}
+          </G>
+          <G>
+            {isShowBubbleText &&
+              this.renderBubble({
+                ...config,
+                data: data.datasets[0].data,
+                paddingTop: paddingTop as number,
+                paddingRight: paddingRight as number,
+                barPaddingTop: barPaddingTop
               })}
           </G>
         </Svg>
