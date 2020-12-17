@@ -121,10 +121,11 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
     Omit<AbstractChartConfig, "data">,
     | "width"
     | "height"
-    | "paddingRight"
     | "paddingTop"
+    | "paddingRight"
     | "barRadius"
     | "barRoundedCap"
+    | "withCustomBarColorFromData"
   > & {
     data: [number, number][][];
     withCustomBarColorFromData: boolean;
@@ -132,12 +133,13 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
     const flattenData = data.flatMap(value => value).flatMap(val => val);
     const basePosition = height - height / 4;
     const barHeight = this.calcBarSize(data.length, height - paddingTop);
+    const maxWidth = width - paddingRight;
 
     return data
       .map((periods, index) => {
         return periods.map(([startTime, endTime]) => {
-          const x1 = this.calcHeight(startTime, flattenData, width);
-          const x2 = this.calcHeight(endTime, flattenData, width);
+          const x1 = this.calcHeight(startTime, flattenData, maxWidth);
+          const x2 = this.calcHeight(endTime, flattenData, maxWidth);
 
           return (
             <Rect
