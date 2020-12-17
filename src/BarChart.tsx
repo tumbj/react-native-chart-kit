@@ -69,6 +69,10 @@ export interface BarChartProps extends AbstractChartProps {
   isShowBubbleText?: boolean; //default is false
   bubbleTextConfig?: BubbleTextData;
   barPaddingTop?: number;
+  /**
+   * Threshold of bar chart
+   */
+  threshold?: number;
 }
 
 type BarChartState = {};
@@ -81,6 +85,38 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
 
   state = {
     barIndex: -1
+  };
+
+  calcBaseHeight = (data: number[], height: number) => {
+    let newData = [...data];
+    this.props.threshold ? newData.push(this.props.threshold) : null;
+    const min = Math.min(...newData);
+    const max = Math.max(...newData);
+    if (min >= 0 && max >= 0) {
+      return height;
+    } else if (min < 0 && max <= 0) {
+      return 0;
+    } else if (min < 0 && max > 0) {
+      return (height * max) / this.calcScaler(newData);
+    }
+  };
+
+  calcHeight = (val: number, data: number[], height: number) => {
+    let newData = [...data];
+    this.props.threshold ? newData.push(this.props.threshold) : null;
+    const max = Math.max(...newData);
+    const min = Math.min(...newData);
+    if (min < 0 && max > 0) {
+      return height * (val / this.calcScaler(newData));
+    } else if (min >= 0 && max >= 0) {
+      return this.props.fromZero
+        ? height * (val / this.calcScaler(newData))
+        : height * ((val - min) / this.calcScaler(newData));
+    } else if (min < 0 && max <= 0) {
+      return this.props.fromZero
+        ? height * (val / this.calcScaler(newData))
+        : height * ((val - max) / this.calcScaler(newData));
+    }
   };
 
   renderBubbleText = (
@@ -274,9 +310,9 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     ));
   };
 
-  renderGoalPointLine = ({
+  renderThresholdLine = ({
     data,
-    goalPoint,
+    threshold,
     width,
     height,
     paddingTop,
@@ -286,10 +322,10 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     "width" | "height" | "paddingRight" | "paddingTop"
   > & {
     data: number[];
-    goalPoint: number;
+    threshold: number;
   }) => {
     const baseHeight = this.calcBaseHeight(data, height);
-    const barHeight = this.calcHeight(goalPoint, data, height);
+    const barHeight = this.calcHeight(threshold, data, height);
     const barWidth = 32 * this.getBarPercentage();
     const yAxis =
       ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
@@ -377,7 +413,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
       flatColor = false,
       segments = 4,
       barPaddingTop = 0,
-      goalPoint = false
+      threshold = false
     } = this.props;
 
     const { borderRadius = 0, paddingTop = 16, paddingRight = 64 } = style;
@@ -424,11 +460,11 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
             fill="url(#backgroundGradient)"
           />
           <G>
-            {goalPoint
-              ? this.renderGoalPointLine({
+            {threshold
+              ? this.renderThresholdLine({
                   ...config,
                   data: data.datasets[0].data,
-                  goalPoint: goalPoint,
+                  threshold,
                   paddingTop: (paddingTop as number) + barPaddingTop,
                   paddingRight: paddingRight as number
                 })

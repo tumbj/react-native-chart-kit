@@ -13,7 +13,6 @@ export interface AbstractChartProps {
   xAxisLabel?: string;
   xLabelsOffset?: number;
   hidePointsAtIndex?: number[];
-  goalPoint?: number;
 }
 
 export interface AbstractChartConfig extends ChartConfig {
@@ -47,34 +46,30 @@ class AbstractChart<
   };
 
   calcBaseHeight = (data: number[], height: number) => {
-    let newData = [...data];
-    this.props.goalPoint ? newData.push(this.props.goalPoint) : null;
-    const min = Math.min(...newData);
-    const max = Math.max(...newData);
+    const min = Math.min(...data);
+    const max = Math.max(...data);
     if (min >= 0 && max >= 0) {
       return height;
     } else if (min < 0 && max <= 0) {
       return 0;
     } else if (min < 0 && max > 0) {
-      return (height * max) / this.calcScaler(newData);
+      return (height * max) / this.calcScaler(data);
     }
   };
 
   calcHeight = (val: number, data: number[], height: number) => {
-    let newData = [...data];
-    this.props.goalPoint ? newData.push(this.props.goalPoint) : null;
-    const max = Math.max(...newData);
-    const min = Math.min(...newData);
+    const max = Math.max(...data);
+    const min = Math.min(...data);
     if (min < 0 && max > 0) {
-      return height * (val / this.calcScaler(newData));
+      return height * (val / this.calcScaler(data));
     } else if (min >= 0 && max >= 0) {
       return this.props.fromZero
-        ? height * (val / this.calcScaler(newData))
-        : height * ((val - min) / this.calcScaler(newData));
+        ? height * (val / this.calcScaler(data))
+        : height * ((val - min) / this.calcScaler(data));
     } else if (min < 0 && max <= 0) {
       return this.props.fromZero
-        ? height * (val / this.calcScaler(newData))
-        : height * ((val - max) / this.calcScaler(newData));
+        ? height * (val / this.calcScaler(data))
+        : height * ((val - max) / this.calcScaler(data));
     }
   };
 
