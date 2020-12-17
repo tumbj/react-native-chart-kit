@@ -3,8 +3,10 @@ import { View, ViewStyle } from "react-native";
 import {
   Defs,
   G,
+  Line,
   LinearGradient,
   Path,
+  Polygon,
   Rect,
   Stop,
   Svg,
@@ -272,6 +274,56 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     ));
   };
 
+  renderGoalPointLine = ({
+    data,
+    goalPoint,
+    width,
+    height,
+    paddingTop,
+    paddingRight
+  }: Pick<
+    Omit<AbstractChartConfig, "data">,
+    "width" | "height" | "paddingRight" | "paddingTop"
+  > & {
+    data: number[];
+    goalPoint: number;
+  }) => {
+    const baseHeight = this.calcBaseHeight(data, height);
+    const barHeight = this.calcHeight(goalPoint, data, height);
+    const barWidth = 32 * this.getBarPercentage();
+    const yAxis =
+      ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
+      paddingTop;
+    const lineWidth = width - paddingRight - barWidth * 0.5;
+    return (
+      <G x={paddingRight} y={yAxis}>
+        <G rotation={-90} x={-2}>
+          <Text
+            key={Math.random()}
+            fill={"#4F58DF"}
+            fontSize="18"
+            textAnchor="middle"
+          >
+            {"เป้าหมาย"}
+          </Text>
+        </G>
+        <Line
+          x2={lineWidth}
+          stroke="#4F58DF"
+          strokeDasharray="2 2"
+          strokeLinecap="round"
+        />
+        <Polygon
+          y={-4}
+          points="6,4 0,7.464 0,0.536"
+          fill="#4F58DF"
+          stroke="#4F58DF"
+          strokeWidth="1"
+        />
+      </G>
+    );
+  };
+
   renderValuesOnTopOfBars = ({
     data,
     width,
@@ -324,7 +376,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
       showValuesOnTopOfBars = false,
       flatColor = false,
       segments = 4,
-      barPaddingTop = 0
+      barPaddingTop = 0,
+      goalPoint = false
     } = this.props;
 
     const { borderRadius = 0, paddingTop = 16, paddingRight = 64 } = style;
@@ -370,6 +423,17 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
             ry={borderRadius}
             fill="url(#backgroundGradient)"
           />
+          <G>
+            {goalPoint
+              ? this.renderGoalPointLine({
+                  ...config,
+                  data: data.datasets[0].data,
+                  goalPoint: goalPoint,
+                  paddingTop: (paddingTop as number) + barPaddingTop,
+                  paddingRight: paddingRight as number
+                })
+              : null}
+          </G>
           <G>
             {withInnerLines
               ? this.renderHorizontalLines({
