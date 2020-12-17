@@ -151,29 +151,24 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     }: BubbleTextData
   ) => {
     return (
-      <G>
-        <Rect
-          key={Math.random()}
-          x={xAxis}
-          y={yAxis - bubleOffset}
-          width={width}
-          height={height}
-          fill={color}
-        />
+      <G x={xAxis} y={yAxis - bubleOffset}>
+        <Rect key={Math.random()} width={width} height={height} fill={color} />
         <Text
           key={Math.random()}
-          x={xAxis + width / 2}
-          y={yAxis - bubleOffset + height / 2 + 2}
+          x={width / 2}
+          y={height * 0.625}
           stroke={textColor}
           fontSize={fontSize}
           textAnchor="middle"
         >
           {`${textData} ${textSuffix}`}
         </Text>
-        <G x={xAxis} y={yAxis - bubleOffset}>
-          <Path
-            d="M35 42.459L31.5359 34.1465L38.4641 34.1465L35 42.459Z"
+        <G x={width * 0.5 - width * 0.0625} y={height}>
+          <Polygon
+            points="4,6 0.536,0 7.464,0 4,6"
             fill={color}
+            stroke={color}
+            strokeWidth="1"
           />
         </G>
       </G>
