@@ -10,7 +10,8 @@ import {
   Rect,
   Stop,
   Svg,
-  Text
+  Text,
+  TextAnchor
 } from "react-native-svg";
 
 import AbstractChart, {
@@ -33,6 +34,16 @@ export interface BubbleTextData {
   textColor?: string;
   textSuffix?: string;
   bubleOffset?: number;
+}
+
+export interface ThresholdConfigData {
+  text?: string;
+  colorLine?: string;
+  colorPolygon?: string;
+  textColor?: string;
+  textAnchor?: TextAnchor;
+  fontSize?: number;
+  fontFamily?: string;
 }
 
 export interface BarChartProps extends AbstractChartProps {
@@ -73,6 +84,7 @@ export interface BarChartProps extends AbstractChartProps {
    * Threshold of bar chart
    */
   threshold?: number;
+  thresholdConfig?: ThresholdConfigData;
 }
 
 type BarChartState = {};
@@ -316,13 +328,27 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     width,
     height,
     paddingTop,
-    paddingRight
+    paddingRight,
+    text = "Threshold",
+    colorLine = "#4F58DF",
+    colorPolygon = "#4F58DF",
+    textColor = "#4F58DF",
+    textAnchor = "middle",
+    fontSize = 18,
+    fontFamily = ""
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop"
   > & {
     data: number[];
     threshold: number;
+    text?: string;
+    colorLine?: string;
+    colorPolygon?: string;
+    textColor?: string;
+    textAnchor?: TextAnchor;
+    fontSize?: number;
+    fontFamily?: string;
   }) => {
     const baseHeight = this.calcBaseHeight(data, height);
     const barHeight = this.calcHeight(threshold, data, height);
@@ -336,24 +362,25 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
         <G rotation={-90} x={-2}>
           <Text
             key={Math.random()}
-            fill={"#4F58DF"}
-            fontSize="18"
-            textAnchor="middle"
+            fill={textColor}
+            fontSize={fontSize}
+            textAnchor={textAnchor}
+            fontFamily={fontFamily}
           >
-            {"เป้าหมาย"}
+            {text}
           </Text>
         </G>
         <Line
           x2={lineWidth}
-          stroke="#4F58DF"
+          stroke={colorLine}
           strokeDasharray="2 2"
           strokeLinecap="round"
         />
         <Polygon
           y={-4}
           points="6,4 0,7.464 0,0.536"
-          fill="#4F58DF"
-          stroke="#4F58DF"
+          fill={colorPolygon}
+          stroke={colorPolygon}
           strokeWidth="1"
         />
       </G>
@@ -413,7 +440,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
       flatColor = false,
       segments = 4,
       barPaddingTop = 0,
-      threshold = false
+      threshold = false,
+      thresholdConfig = {}
     } = this.props;
 
     const { borderRadius = 0, paddingTop = 16, paddingRight = 64 } = style;
@@ -466,7 +494,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                   data: data.datasets[0].data,
                   threshold,
                   paddingTop: (paddingTop as number) + barPaddingTop,
-                  paddingRight: paddingRight as number
+                  paddingRight: paddingRight as number,
+                  ...thresholdConfig
                 })
               : null}
           </G>
