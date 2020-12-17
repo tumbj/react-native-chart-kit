@@ -72,6 +72,11 @@ export interface ChartConfig {
    * Override styles of the background lines, refer to react-native-svg's Line documentation
    */
   propsForBackgroundLines?: object;
+
+  /**
+   * Override styles of the horizontal axis line
+   */
+  propsForHorizontalAxisLine?: object;
   /**
    * Override styles of the labels, refer to react-native-svg's Text documentation
    */

@@ -84,14 +84,83 @@ const progressChartData = {
 const stackedBarGraphData = {
   labels: ["Test1", "Test2"],
   legend: ["L1", "L2", "L3"],
-  data: [[60, 60, 60], [30, 30, 60]],
+  data: [
+    [60, 60, 60],
+    [30, 30, 60]
+  ],
   barColors: ["#dfe4ea", "#ced6e0", "#a4b0be"]
 };
+
+// Mock data object for Gantt
+const ganttChartData = [
+  {
+    name: " Sleep A",
+    periods: [
+      [new Date("2020-12-01T23:00:00"), new Date("2020-12-01T23:19:10")],
+      [new Date("2020-12-02T00:20:00"), new Date("2020-12-02T01:10:40")]
+    ],
+    colors: [_ => "#08D2B4"]
+  },
+  {
+    name: " Sleep B",
+    periods: [
+      [new Date("2020-12-01T23:20:00"), new Date("2020-12-02T00:19:10")]
+    ],
+    colors: [_ => "#4F58DF"]
+  },
+  {
+    name: " Sleep C",
+    periods: [
+      [new Date("2020-12-01T22:00:00"), new Date("2020-12-01T22:30:10")],
+      [new Date("2020-12-02T03:20:00"), new Date("2020-12-02T03:31:40")]
+    ],
+    colors: [_ => "#99A6B8"]
+  },
+  {
+    name: " Sleep D",
+    periods: [
+      [new Date("2020-12-01T23:20:00"), new Date("2020-12-02T00:19:10")]
+    ],
+    colors: [_ => "#9FE0F2"]
+  },
+  {
+    name: " Sleep E",
+    periods: [
+      [new Date("2020-12-01T23:00:00"), new Date("2020-12-01T23:19:10")],
+      [new Date("2020-12-02T00:20:00"), new Date("2020-12-02T01:10:40")]
+    ],
+    colors: [_ => "#FF0000"]
+  },
+  {
+    name: " Sleep F",
+    periods: [
+      [new Date("2020-12-01T23:20:00"), new Date("2020-12-02T00:19:10")]
+    ],
+    colors: [_ => "#00FF00"]
+  },
+  {
+    name: " Sleep G",
+    periods: [
+      [new Date("2020-12-01T23:00:00"), new Date("2020-12-01T23:19:10")],
+      [new Date("2020-12-02T00:20:00"), new Date("2020-12-02T01:10:40")]
+    ],
+    colors: [_ => "#0000FF"]
+  },
+  {
+    name: " Sleep H",
+    periods: [
+      [new Date("2020-12-01T23:20:00"), new Date("2020-12-02T00:19:10")]
+    ],
+    colors: [_ => "#FFFFFF"]
+  }
+];
+// .slice(0, 4);
 
 export {
   data,
   contributionData,
   pieChartData,
+  ganttChartData,
   progressChartData,
   stackedBarGraphData
 };

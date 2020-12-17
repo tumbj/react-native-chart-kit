@@ -1,13 +1,20 @@
 import "babel-polyfill";
 
 import React from "react";
-import { Dimensions, ScrollView, StatusBar, Text } from "react-native";
+import {
+  Dimensions,
+  ScrollView,
+  StatusBar,
+  Text,
+  SafeAreaView
+} from "react-native";
 import FlashMessage, { showMessage } from "react-native-flash-message";
 import ScrollableTabView from "react-native-scrollable-tab-view";
 
 import {
   contributionData,
   data,
+  ganttChartData,
   pieChartData,
   progressChartData,
   stackedBarGraphData
@@ -15,11 +22,12 @@ import {
 import {
   BarChart,
   ContributionGraph,
+  GanttChart,
   LineChart,
   PieChart,
   ProgressChart,
   StackedBarChart
-} from "./dist/";
+} from "./src";
 
 // in Expo - swipe left to see the following styling, or create your own
 const chartConfigs = [
@@ -30,7 +38,8 @@ const chartConfigs = [
     color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
     style: {
       borderRadius: 16
-    }
+    },
+    propsForHorizontalAxisLine: { strokeDasharray: null }
   },
   {
     backgroundColor: "#022173",
@@ -48,7 +57,10 @@ const chartConfigs = [
     backgroundColor: "#ffffff",
     backgroundGradientFrom: "#ffffff",
     backgroundGradientTo: "#ffffff",
-    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`
+    color: (opacity = 1) => `#99A6B8`,
+    propsForBackgroundLines: { strokeDasharray: "2 2" },
+    propsForHorizontalAxisLine: { strokeDasharray: null },
+    barRadius: 32 / 2
   },
   {
     backgroundColor: "#26872a",
@@ -95,7 +107,7 @@ const chartConfigs = [
     backgroundGradientTo: "#ff3e03",
     color: (opacity = 1) => `rgba(${0}, ${0}, ${0}, ${opacity})`
   }
-];
+].map(config => ({ ...config, data: [{ color: config.color }] }));
 
 export default class App extends React.Component {
   renderTabBar() {
@@ -154,6 +166,26 @@ export default class App extends React.Component {
                 chartConfig={chartConfig}
                 style={graphStyle}
                 hideLegend={false}
+              />
+              <Text style={labelStyle}>Gantt Chart</Text>
+              <GanttChart
+                width={width}
+                height={height}
+                data={ganttChartData}
+                chartConfig={chartConfig}
+                style={graphStyle}
+                withVerticalInnerLines={true}
+                dateFormatter={date =>
+                  date
+                    .toISOString()
+                    .split("T")[1]
+                    .split(":")
+                    .slice(0, 2)
+                    .join(":")
+                }
+                withCustomBarColorFromData={true}
+                flatColor={true}
+                barRoundedCap={true}
               />
               <Text style={labelStyle}>Bar Graph</Text>
               <BarChart
