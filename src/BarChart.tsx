@@ -33,7 +33,7 @@ export interface BubbleTextData {
   fontSize?: number;
   textColor?: string;
   textSuffix?: string;
-  bubleOffset?: number;
+  bubbleOffset?: number;
 }
 
 export interface ThresholdConfigData {
@@ -148,11 +148,11 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
       textColor = "#FFFFFF",
       fontSize = 12,
       textSuffix = "",
-      bubleOffset = 41
+      bubbleOffset = 41
     }: BubbleTextData
   ) => {
     return (
-      <G key={Math.random()} x={xAxis} y={yAxis - bubleOffset}>
+      <G key={Math.random()} x={xAxis} y={yAxis - bubbleOffset}>
         <Rect key={Math.random()} width={width} height={height} fill={color} />
         <Text
           key={Math.random()}
@@ -286,11 +286,17 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
           ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
           paddingTop +
           barPaddingTop;
-        const bubbleWidth = this.props.bubbleTextConfig
-          ? this.props.bubbleTextConfig.width
-            ? this.props.bubbleTextConfig.width
-            : 71
-          : 71;
+        const {
+          width: bubbleWidth = 71,
+          height: bubbleHeight = 33.2501,
+          color = "#00214E",
+          textColor = "#FFFFFF",
+          fontSize = 12,
+          textSuffix = "",
+          bubbleOffset = 41
+        }: BubbleTextData = this.props.bubbleTextConfig
+          ? this.props.bubbleTextConfig
+          : {};
         const bubbleTextXAxis = this.getSuitXAxisOfBar(
           xAxis,
           paddingRight,
@@ -298,13 +304,37 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
           bubbleWidth,
           barWidth
         );
-
-        return this.renderBubbleText(
-          bubbleTextXAxis.xBubble,
-          yAxis,
-          bubbleTextXAxis.xPolygon,
-          this.numberWithCommas(x),
-          this.props.bubbleTextConfig ? this.props.bubbleTextConfig : {}
+        return (
+          <G
+            key={Math.random()}
+            x={bubbleTextXAxis.xBubble}
+            y={yAxis - bubbleOffset}
+          >
+            <Rect
+              key={Math.random()}
+              width={bubbleWidth}
+              height={bubbleHeight}
+              fill={color}
+            />
+            <Text
+              key={Math.random()}
+              x={bubbleWidth / 2}
+              y={bubbleHeight * 0.625}
+              stroke={textColor}
+              fontSize={fontSize}
+              textAnchor="middle"
+            >
+              {`${this.numberWithCommas(x)} ${textSuffix}`}
+            </Text>
+            <G x={bubbleTextXAxis.xPolygon} y={bubbleHeight}>
+              <Polygon
+                points="4,6 0.536,0 7.464,0 4,6"
+                fill={color}
+                stroke={color}
+                strokeWidth="1"
+              />
+            </G>
+          </G>
         );
       } else return;
     });
