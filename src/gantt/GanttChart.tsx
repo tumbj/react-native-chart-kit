@@ -51,12 +51,6 @@ export interface GanttChartProps extends AbstractChartProps {
    * Show horizontal labels - default: True.
    */
   withHorizontalLabels?: boolean;
-  /**
-   * The number of horizontal lines
-   */
-  segments?: number;
-  showBarTops?: boolean;
-  showValuesOnTopOfBars?: boolean;
   withCustomBarColorFromData?: boolean;
   flatColor?: boolean;
   dateFormatter?: (date: Date) => string;
@@ -88,13 +82,6 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
       .map(date => date.valueOf());
     const startTime = Math.min(...data);
     const endTime = Math.max(...data);
-    // const duration = Math.floor((endTime - startTime) / 1000);
-    // const secondForDay = 86400;
-    // if (duration > secondForDay) {
-
-    // } else if () {
-
-    // }
 
     const labels = new Array(count)
       .fill(1)
@@ -119,15 +106,10 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
     withCustomBarColorFromData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
-    | "width"
-    | "height"
-    | "paddingTop"
-    | "paddingRight"
-    | "barRadius"
-    | "barRoundedCap"
-    | "withCustomBarColorFromData"
+    "width" | "height" | "paddingTop" | "paddingRight" | "barRadius"
   > & {
     data: [number, number][][];
+    barRoundedCap: boolean;
     withCustomBarColorFromData: boolean;
   }) => {
     const flattenData = data.flatMap(value => value).flatMap(val => val);
@@ -165,40 +147,6 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
       .flatMap(val => val);
   };
 
-  renderBarTops = ({
-    data,
-    width,
-    height,
-    paddingTop,
-    paddingRight
-  }: Pick<
-    Omit<AbstractChartConfig, "data">,
-    "width" | "height" | "paddingRight" | "paddingTop"
-  > & {
-    data: number[];
-  }) => {
-    const baseHeight = this.calcBaseHeight(data, height);
-
-    return data.map((x, i) => {
-      const barHeight = this.calcHeight(x, data, height);
-      const barWidth = 32 * this.getBarPercentage();
-      return (
-        <Rect
-          key={Math.random()}
-          x={
-            paddingRight +
-            (i * (width - paddingRight)) / data.length +
-            barWidth / 2
-          }
-          y={((baseHeight - barHeight) / 4) * 3 + paddingTop}
-          width={barWidth}
-          height={2}
-          fill={this.props.chartConfig.color(0.6)}
-        />
-      );
-    });
-  };
-
   renderColors = (data: GanttData[], flatColor: boolean) => {
     return data.map((dataset, index) => (
       <Defs>
@@ -225,42 +173,6 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
         })}
       </Defs>
     ));
-  };
-
-  renderValuesOnTopOfBars = ({
-    data,
-    width,
-    height,
-    paddingTop,
-    paddingRight
-  }: Pick<
-    Omit<AbstractChartConfig, "data">,
-    "width" | "height" | "paddingRight" | "paddingTop"
-  > & {
-    data: number[];
-  }) => {
-    const baseHeight = this.calcBaseHeight(data, height);
-
-    return data.map((x, i) => {
-      const barHeight = this.calcHeight(x, data, height);
-      const barWidth = 32 * this.getBarPercentage();
-      return (
-        <Text
-          key={Math.random()}
-          x={
-            paddingRight +
-            (i * (width - paddingRight)) / data.length +
-            barWidth / 1
-          }
-          y={((baseHeight - barHeight) / 4) * 3 + paddingTop - 1}
-          fill={this.props.chartConfig.color(0.6)}
-          fontSize="12"
-          textAnchor="middle"
-        >
-          {data[i]}
-        </Text>
-      );
-    });
   };
 
   renderHorizontalLabels = ({
@@ -335,12 +247,9 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
       horizontalLabelRotation = 0,
       withVerticalInnerLines = false,
       withHorizontalInnerLines = false,
-      showBarTops = true,
       withCustomBarColorFromData = false,
-      showValuesOnTopOfBars = false,
       flatColor = false,
-      barRoundedCap = false,
-      segments = 4
+      barRoundedCap = false
     } = this.props;
 
     const { borderRadius = 0, paddingTop = 32, paddingRight = 64 } = style;
@@ -442,24 +351,6 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
               withCustomBarColorFromData: withCustomBarColorFromData,
               barRoundedCap: barRoundedCap
             })}
-          </G>
-          <G>
-            {showValuesOnTopOfBars &&
-              this.renderValuesOnTopOfBars({
-                ...config,
-                data: [], // data.datasets[0].data,
-                paddingTop: paddingTop as number,
-                paddingRight: paddingRight as number
-              })}
-          </G>
-          <G>
-            {showBarTops &&
-              this.renderBarTops({
-                ...config,
-                data: [], //data.datasets[0].data,
-                paddingTop: paddingTop as number,
-                paddingRight: paddingRight as number
-              })}
           </G>
         </Svg>
       </View>

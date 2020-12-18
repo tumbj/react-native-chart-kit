@@ -30,9 +30,6 @@
     "react-test-renderer": "16.7.0",
     "typescript": "^3.9.5"
   },
-  "resolutions": {
-    "@types/react": "^16.9.38"
-  },
   "main": "./node_modules/expo/AppEntry.js",
   "_main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
