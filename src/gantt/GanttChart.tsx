@@ -86,11 +86,14 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
 
     const lowwerBoundary = Math.floor(startTime / 1000 / interval) * interval;
     const upperBoundary = Math.ceil(endTime / 1000 / interval) * interval;
+    const count = Math.floor(
+      Math.abs(upperBoundary - lowwerBoundary) / interval
+    );
     return [
       new Date(lowwerBoundary * 1000),
       new Date(upperBoundary * 1000),
       interval,
-      Math.floor(Math.abs(upperBoundary - lowwerBoundary) / interval)
+      count === Infinity ? 0 : count
     ];
   };
 
