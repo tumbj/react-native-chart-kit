@@ -22,9 +22,6 @@ export interface GanttData {
   /** The periods corresponding to the x-axis label. */
   periods: [Date, Date][];
 
-  /** A function returning the color of the stroke given an input opacity value. */
-  color?: (opacity: number) => string;
-
   /** A function returning array of the colors of the stroke given an input opacity value for each data value. */
   colors?: Array<(opacity: number) => string>;
 }
