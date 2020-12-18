@@ -312,8 +312,8 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
               ? this.renderVerticalLines({
                   ...config,
                   data: new Array(data.length).fill(1),
-                  paddingRight,
-                  paddingTop
+                  paddingRight: paddingRight as number,
+                  paddingTop: paddingTop as number
                 })
               : null}
           </G>
