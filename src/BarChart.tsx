@@ -315,6 +315,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
               width={bubbleWidth}
               height={bubbleHeight}
               fill={color}
+              stroke={color}
             />
             <Text
               key={Math.random()}
@@ -616,18 +617,6 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
             fill="url(#backgroundGradient)"
           />
           <G>
-            {threshold
-              ? this.renderThresholdLine({
-                  ...config,
-                  data: data.datasets[0].data,
-                  threshold,
-                  paddingTop: (paddingTop as number) + barPaddingTop,
-                  paddingRight: paddingRight as number,
-                  ...thresholdConfig
-                })
-              : null}
-          </G>
-          <G>
             {withInnerLines
               ? this.renderHorizontalLines({
                   ...config,
@@ -698,6 +687,18 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                 paddingTop: (paddingTop as number) + barPaddingTop,
                 paddingRight: paddingRight as number
               })}
+          </G>
+          <G>
+            {threshold
+              ? this.renderThresholdLine({
+                  ...config,
+                  data: data.datasets[0].data,
+                  threshold,
+                  paddingTop: (paddingTop as number) + barPaddingTop,
+                  paddingRight: paddingRight as number,
+                  ...thresholdConfig
+                })
+              : null}
           </G>
           <G>
             {isShowBubbleText &&
