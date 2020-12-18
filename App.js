@@ -27,7 +27,7 @@ import {
   PieChart,
   ProgressChart,
   StackedBarChart
-} from "./src";
+} from "./dist";
 
 // in Expo - swipe left to see the following styling, or create your own
 const chartConfigs = [
