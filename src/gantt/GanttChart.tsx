@@ -360,7 +360,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
             {withVerticalLabels
               ? this.renderVerticalLabels({
                   ...config,
-                  labels: this.getTimeLabels(4),
+                  labels: this.getTimeLabels(),
                   paddingRight: paddingRight as number,
                   paddingTop: paddingTop as number
                 })
