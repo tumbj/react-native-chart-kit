@@ -75,24 +75,49 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
     );
   };
 
-  getTimeLabels = (count = 4) => {
+  calcTimeBoundary = (): [Date, Date, number, number] => {
     const data = this.props.data
       .flatMap(data => data.periods)
       .flatMap(period => [period[0], period[1]])
       .map(date => date.valueOf());
+
     const startTime = Math.min(...data);
     const endTime = Math.max(...data);
+    const duration = (endTime - startTime) / 1000;
+    const secPerHour = 3600;
+    const numberOfHour = duration / secPerHour;
 
-    const labels = new Array(count)
-      .fill(1)
-      .map((_, index) => ((endTime - startTime) / count) * index + startTime)
-      .map(tick => new Date(tick))
+    let interval = secPerHour;
+    if (numberOfHour > 4) {
+      interval = secPerHour * 3;
+    } else if (numberOfHour > 1) {
+      interval = secPerHour;
+    } else {
+      interval = secPerHour / 4;
+    }
+
+    const lowwerBoundary = Math.floor(startTime / 1000 / interval) * interval;
+    const upperBoundary = Math.ceil(endTime / 1000 / interval) * interval;
+    return [
+      new Date(lowwerBoundary * 1000),
+      new Date(upperBoundary * 1000),
+      interval,
+      Math.floor(Math.abs(upperBoundary - lowwerBoundary) / interval)
+    ];
+  };
+
+  getTimeLabels = () => {
+    const [startTime, endTime, interval, count] = this.calcTimeBoundary();
+    return new Array(count)
+      .fill(startTime)
+      .map(
+        (_, index) => new Date(startTime.valueOf() + index * interval * 1000)
+      )
       .map(date =>
         this.props.dateFormatter
           ? this.props.dateFormatter(date)
           : date.toLocaleString()
       );
-    return labels;
   };
 
   renderBars = ({
@@ -112,10 +137,15 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
     barRoundedCap: boolean;
     withCustomBarColorFromData: boolean;
   }) => {
-    const flattenData = data.flatMap(value => value).flatMap(val => val);
     const basePosition = height - height / 4;
     const barHeight = this.calcBarSize(data.length, height - paddingTop);
     const maxWidth = width - paddingRight;
+    const [startTime, endTime] = this.calcTimeBoundary();
+    const flattenData = [
+      startTime.valueOf(),
+      endTime.valueOf(),
+      ...data.flatMap(value => value).flatMap(val => val)
+    ];
 
     return data
       .map((periods, index) => {
@@ -275,6 +305,8 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
         }
     };
 
+    const [, , , count] = this.calcTimeBoundary();
+
     return (
       <View style={style}>
         <Svg height={height} width={width}>
@@ -311,7 +343,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
             {withVerticalInnerLines
               ? this.renderVerticalLines({
                   ...config,
-                  data: new Array(data.length).fill(1),
+                  data: new Array(count).fill(1),
                   paddingRight: paddingRight as number,
                   paddingTop: paddingTop as number
                 })
