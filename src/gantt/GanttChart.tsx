@@ -75,14 +75,18 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
     const secPerHour = 3600;
     const numberOfHour = duration / secPerHour;
 
-    let interval = secPerHour;
-    if (numberOfHour > 4) {
-      interval = secPerHour * 3;
-    } else if (numberOfHour > 1) {
-      interval = secPerHour;
-    } else {
-      interval = secPerHour / 4;
-    }
+    const timeScales = [
+      [24, 12] /** [hour, multiplier] */,
+      [12, 6],
+      [6, 3],
+      [3, 1],
+      [0, 0.25]
+    ];
+
+    const interval =
+      timeScales.find(([duration, _]) => {
+        return numberOfHour > duration;
+      })[1] * secPerHour;
 
     const lowwerBoundary = Math.floor(startTime / 1000 / interval) * interval;
     const upperBoundary = Math.ceil(endTime / 1000 / interval) * interval;
