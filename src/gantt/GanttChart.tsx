@@ -83,10 +83,11 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
       [0, 0.25]
     ];
 
-    const interval =
+    const scale =
       timeScales.find(([duration, _]) => {
         return numberOfHour > duration;
-      })[1] * secPerHour;
+      }) || timeScales[1];
+    const interval = scale[0] * secPerHour;
 
     const lowwerBoundary = Math.floor(startTime / 1000 / interval) * interval;
     const upperBoundary = Math.ceil(endTime / 1000 / interval) * interval;
