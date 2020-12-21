@@ -253,7 +253,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
           y={y}
           textAnchor="end"
           {...this.getPropsForLabels()}
-          {...this.getPropsForVerticalLabels()}
+          {...this.getPropsForHorizontalLabels()}
         >
           {`${formatYLabel(label)}${yAxisLabel}`}
         </Text>
