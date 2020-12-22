@@ -69,10 +69,16 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
       .flatMap(period => [period[0], period[1]])
       .map(date => date.valueOf());
 
+    const secPerHour = 3600;
+
+    if (data.length === 0) {
+      return [new Date(), new Date(), secPerHour, 0];
+    }
+
     const startTime = Math.min(...data);
     const endTime = Math.max(...data);
     const duration = (endTime - startTime) / 1000;
-    const secPerHour = 3600;
+
     const numberOfHour = duration / secPerHour;
 
     const timeScales = [
@@ -87,7 +93,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
       timeScales.find(([duration, _]) => {
         return numberOfHour > duration;
       }) || timeScales[1];
-    const interval = scale[0] * secPerHour;
+    const interval = scale[1] * secPerHour;
 
     const lowwerBoundary = Math.floor(startTime / 1000 / interval) * interval;
     const upperBoundary = Math.ceil(endTime / 1000 / interval) * interval;
@@ -98,7 +104,8 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
       new Date(lowwerBoundary * 1000),
       new Date(upperBoundary * 1000),
       interval,
-      count === Infinity ? 0 : count
+      count === Infinity || count === NaN ? 0 : count
+
     ];
   };
 
@@ -175,7 +182,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
 
   renderColors = (data: GanttData[], flatColor: boolean) => {
     return data.map((dataset, index) => (
-      <Defs>
+      <Defs key={`container-color-${index}`}>
         {dataset.colors?.map((color, colorIndex) => {
           const highOpacityColor = color(1.0);
           const lowOpacityColor = color(0.1);
