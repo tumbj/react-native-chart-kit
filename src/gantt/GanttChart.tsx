@@ -98,7 +98,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
       new Date(lowwerBoundary * 1000),
       new Date(upperBoundary * 1000),
       interval,
-      count === Infinity ? 0 : count
+      count === Infinity || count === NaN ? 0 : count
     ];
   };
 
