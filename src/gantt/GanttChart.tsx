@@ -78,6 +78,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
     const startTime = Math.min(...data);
     const endTime = Math.max(...data);
     const duration = (endTime - startTime) / 1000;
+
     const numberOfHour = duration / secPerHour;
 
     const timeScales = [
@@ -104,6 +105,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
       new Date(upperBoundary * 1000),
       interval,
       count === Infinity || count === NaN ? 0 : count
+
     ];
   };
 
