@@ -83,6 +83,14 @@ class AbstractChart<
     };
   }
 
+  getPropsForHorizontalAxisLine() {
+    const { propsForHorizontalAxisLine = {} } = this.props.chartConfig;
+    return {
+      ...this.getPropsForBackgroundLines(),
+      ...propsForHorizontalAxisLine
+    };
+  }
+
   getPropsForLabels() {
     const {
       propsForLabels = {},
@@ -148,7 +156,7 @@ class AbstractChart<
         y1={height - height / 4 + paddingTop}
         x2={width}
         y2={height - height / 4 + paddingTop}
-        {...this.getPropsForBackgroundLines()}
+        {...this.getPropsForHorizontalAxisLine()}
       />
     );
   };
@@ -400,7 +408,7 @@ class AbstractChart<
           data.map((dataset, index) => (
             <LinearGradient
               id={`fillShadowGradient_${index}`}
-              key={`${index}`}
+              key={`def-${index}-${Math.random()}`}
               x1={0}
               y1={0}
               x2={0}
