@@ -339,7 +339,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
             {withVerticalInnerLines
               ? this.renderVerticalLines({
                   ...config,
-                  data: new Array(count).fill(1),
+                  data: new Array(Math.max(count, 1)).fill(1),
                   paddingRight: paddingRight as number,
                   paddingTop: paddingTop as number
                 })
