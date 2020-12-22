@@ -34,6 +34,7 @@ export interface BubbleTextData {
   textColor?: string;
   textSuffix?: string;
   bubbleOffset?: number;
+  fontFamily?: string;
 }
 
 export interface ThresholdConfigData {
@@ -298,7 +299,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
           textColor = "#FFFFFF",
           fontSize = 12,
           textSuffix = "",
-          bubbleOffset = 41
+          bubbleOffset = 41,
+          fontFamily = ""
         }: BubbleTextData = this.props.bubbleTextConfig
           ? this.props.bubbleTextConfig
           : {};
@@ -329,6 +331,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
               stroke={textColor}
               fontSize={fontSize}
               textAnchor="middle"
+              fontFamily={fontFamily}
             >
               {`${this.numberWithCommas(x)} ${textSuffix}`}
             </Text>
