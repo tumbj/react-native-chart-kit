@@ -85,6 +85,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
       [12, 6],
       [6, 3],
       [3, 1],
+      [1, 0.5],
       [0, 0.25]
     ];
 
