@@ -180,7 +180,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
 
   renderColors = (data: GanttData[], flatColor: boolean) => {
     return data.map((dataset, index) => (
-      <Defs>
+      <Defs key={`container-color-${index}`}>
         {dataset.colors?.map((color, colorIndex) => {
           const highOpacityColor = color(1.0);
           const lowOpacityColor = color(0.1);
