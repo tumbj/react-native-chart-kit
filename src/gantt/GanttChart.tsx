@@ -69,10 +69,15 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
       .flatMap(period => [period[0], period[1]])
       .map(date => date.valueOf());
 
+    const secPerHour = 3600;
+
+    if (data.length === 0) {
+      return [new Date(), new Date(), secPerHour, 0];
+    }
+
     const startTime = Math.min(...data);
     const endTime = Math.max(...data);
     const duration = (endTime - startTime) / 1000;
-    const secPerHour = 3600;
     const numberOfHour = duration / secPerHour;
 
     const timeScales = [
