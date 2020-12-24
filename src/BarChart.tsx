@@ -253,7 +253,9 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                   : `url(#customColor_0_${i})`
                 : "url(#fillShadowGradient)"
             }
-            onPress={() => this.setState({ barIndex: i })}
+            onPress={() => {
+              this.setState({ barIndex: this.state.barIndex === i ? -1 : i });
+            }}
           />
         </G>
       );
@@ -281,7 +283,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     const baseHeight = this.calcBaseHeight(data, height);
     const endPoint = width - paddingRight;
     return data.map((x, i) => {
-      if (this.state.barIndex === i) {
+      if (x && this.state.barIndex === i) {
         const barHeight = this.calcHeight(x, data, height);
         const barWidth = 32 * this.getBarPercentage();
         const xAxis =
