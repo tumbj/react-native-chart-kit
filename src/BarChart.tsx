@@ -82,6 +82,7 @@ export interface BarChartProps extends AbstractChartProps {
   bubbleTextConfig?: BubbleTextData;
   barPaddingTop?: number;
   barPaddingRight?: number;
+  setBubbleText?: (text: string) => string;
   /**
    * Threshold of bar chart
    */
@@ -270,7 +271,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     paddingRight,
     barPaddingTop,
     bubbleWidth = 71,
-    barPaddingRight
+    barPaddingRight,
+    setBubbleText
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop"
@@ -279,6 +281,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     barPaddingTop: number;
     bubbleWidth?: number;
     barPaddingRight: number;
+    setBubbleText?: (text: string) => string;
   }) => {
     const baseHeight = this.calcBaseHeight(data, height);
     const endPoint = width - paddingRight;
@@ -335,7 +338,9 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
               textAnchor="middle"
               fontFamily={fontFamily}
             >
-              {`${this.numberWithCommas(x)} ${textSuffix}`}
+              {setBubbleText
+                ? setBubbleText(this.numberWithCommas(x))
+                : `${this.numberWithCommas(x)} ${textSuffix}`}
             </Text>
             <G x={bubbleTextXAxis.xPolygon} y={bubbleHeight}>
               <Polygon
@@ -796,7 +801,10 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                 paddingTop: paddingTop as number,
                 paddingRight: paddingRight as number,
                 barPaddingTop: barPaddingTop,
-                barPaddingRight: barPaddingRight
+                barPaddingRight: barPaddingRight,
+                setBubbleText: this.props.setBubbleText
+                  ? this.props.setBubbleText
+                  : null
               })}
           </G>
         </Svg>
