@@ -35,6 +35,10 @@ export interface BubbleTextData {
   textSuffix?: string;
   bubbleOffset?: number;
   fontFamily?: string;
+  /**
+   * Function for override bubble text data
+   */
+  setBubbleText?: (text: string) => string;
 }
 
 export interface ThresholdConfigData {
@@ -82,7 +86,6 @@ export interface BarChartProps extends AbstractChartProps {
   bubbleTextConfig?: BubbleTextData;
   barPaddingTop?: number;
   barPaddingRight?: number;
-  setBubbleText?: (text: string) => string;
   /**
    * Threshold of bar chart
    */
@@ -271,8 +274,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     paddingRight,
     barPaddingTop,
     bubbleWidth = 71,
-    barPaddingRight,
-    setBubbleText
+    barPaddingRight
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop"
@@ -281,7 +283,6 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     barPaddingTop: number;
     bubbleWidth?: number;
     barPaddingRight: number;
-    setBubbleText?: (text: string) => string;
   }) => {
     const baseHeight = this.calcBaseHeight(data, height);
     const endPoint = width - paddingRight;
@@ -305,7 +306,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
           fontSize = 12,
           textSuffix = "",
           bubbleOffset = 41,
-          fontFamily = ""
+          fontFamily = "",
+          setBubbleText
         }: BubbleTextData = this.props.bubbleTextConfig
           ? this.props.bubbleTextConfig
           : {};
@@ -801,10 +803,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                 paddingTop: paddingTop as number,
                 paddingRight: paddingRight as number,
                 barPaddingTop: barPaddingTop,
-                barPaddingRight: barPaddingRight,
-                setBubbleText: this.props.setBubbleText
-                  ? this.props.setBubbleText
-                  : null
+                barPaddingRight: barPaddingRight
               })}
           </G>
         </Svg>
