@@ -38,7 +38,7 @@ export interface BubbleTextData {
   /**
    * Function for override bubble text data
    */
-  setBubbleText?: (data: number) => string;
+  getBubbleText?: (data: number) => string;
 }
 
 export interface ThresholdConfigData {
@@ -307,7 +307,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
           textSuffix = "",
           bubbleOffset = 41,
           fontFamily = "",
-          setBubbleText
+          getBubbleText
         }: BubbleTextData = this.props.bubbleTextConfig
           ? this.props.bubbleTextConfig
           : {};
@@ -340,8 +340,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
               textAnchor="middle"
               fontFamily={fontFamily}
             >
-              {setBubbleText
-                ? setBubbleText(x)
+              {getBubbleText
+                ? getBubbleText(x)
                 : `${this.numberWithCommas(x)} ${textSuffix}`}
             </Text>
             <G x={bubbleTextXAxis.xPolygon} y={bubbleHeight}>
