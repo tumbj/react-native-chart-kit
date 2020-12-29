@@ -1,13 +1,7 @@
 import "babel-polyfill";
 
 import React from "react";
-import {
-  Dimensions,
-  ScrollView,
-  StatusBar,
-  Text,
-  SafeAreaView
-} from "react-native";
+import { Dimensions, ScrollView, StatusBar, Text } from "react-native";
 import FlashMessage, { showMessage } from "react-native-flash-message";
 import ScrollableTabView from "react-native-scrollable-tab-view";
 
@@ -20,14 +14,16 @@ import {
   stackedBarGraphData
 } from "./data";
 import {
-  BarChart,
   ContributionGraph,
-  GanttChart,
   LineChart,
-  PieChart,
+  // PieChart,
   ProgressChart,
   StackedBarChart
 } from "./dist/";
+
+import { BarChart } from "./src";
+import { GanttChart, PieChart } from "./src";
+import { Circle, G, Text as SVGText } from "react-native-svg";
 
 // in Expo - swipe left to see the following styling, or create your own
 const chartConfigs = [
@@ -108,15 +104,32 @@ const chartConfigs = [
     color: (opacity = 1) => `rgba(${0}, ${0}, ${0}, ${opacity})`
   }
 ].map(config => ({ ...config, data: [{ color: config.color }] }));
-
 export default class App extends React.Component {
   renderTabBar() {
     return <StatusBar hidden />;
   }
-
   render() {
     const { width } = Dimensions.get("window");
     const height = 256;
+    const overlay = (width, height) => (
+      <G>
+        <Circle
+          r={Math.min(width, height) / 2}
+          cx={width / 2}
+          cy={height / 2}
+          fill={"white"}
+        />
+        <SVGText
+          x={width / 2}
+          y={height / 2 + 18 / 4}
+          textAnchor="middle"
+          fontSize="18"
+          fill={"#000000"}
+        >
+          Donut Text
+        </SVGText>
+      </G>
+    );
     return (
       <ScrollableTabView renderTabBar={this.renderTabBar}>
         {chartConfigs.map(chartConfig => {
@@ -159,14 +172,14 @@ export default class App extends React.Component {
               />
               <FlashMessage duration={1000} />
               <Text style={labelStyle}>Progress Chart</Text>
-              <ProgressChart
+              {/* <ProgressChart
                 data={progressChartData}
                 width={width}
                 height={height}
                 chartConfig={chartConfig}
                 style={graphStyle}
                 hideLegend={false}
-              />
+              /> */}
               <Text style={labelStyle}>Gantt Chart</Text>
               <GanttChart
                 width={width}
@@ -195,6 +208,13 @@ export default class App extends React.Component {
                 yAxisLabel="$"
                 chartConfig={chartConfig}
                 style={graphStyle}
+                isShowBubbleText={true}
+                bubbleTextConfig={{
+                  getBubbleText: data => {
+                    console.log(parseInt(data) + 10, "data real: ", data);
+                    return "dataaaaaaaaaaaaaaa" + data;
+                  }
+                }}
               />
               <Text style={labelStyle}>Stacked Bar Graph</Text>
               <StackedBarChart
@@ -223,6 +243,19 @@ export default class App extends React.Component {
                 style={graphStyle}
                 backgroundColor="transparent"
                 paddingLeft="15"
+              />
+              <Text style={labelStyle}>Donut Chart </Text>
+              <PieChart
+                data={pieChartData}
+                height={height}
+                width={width}
+                chartConfig={chartConfig}
+                accessor="population"
+                style={graphStyle}
+                backgroundColor="transparent"
+                paddingLeft="15"
+                donutComponent={overlay}
+                donutOffset={0.7}
               />
               <Text style={labelStyle}>Line Chart</Text>
               <LineChart

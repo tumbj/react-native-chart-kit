@@ -20,6 +20,11 @@ export interface PieChartProps extends AbstractChartProps {
   legendGap?: number;
   legendMarginTop?: number;
   isLegendValueShowFirst?: boolean;
+  donutComponent?: (width: number, height: number) => Element;
+  /**
+   *  range = 0-1  of pie chart size
+   **/
+  donutOffset?: number;
 }
 
 type PieChartState = {};
@@ -112,7 +117,8 @@ class PieChart extends AbstractChart<PieChartProps, PieChartState> {
         </G>
       );
     });
-
+    const donutAxis = this.props.center || [0, 0];
+    const donutOffset = this.props.donutOffset ? this.props.donutOffset : 0.8;
     return (
       <View
         style={{
@@ -146,6 +152,26 @@ class PieChart extends AbstractChart<PieChartProps, PieChartState> {
           >
             {slices}
           </G>
+          {this.props.donutComponent && (
+            <G
+              x={
+                this.props.width / 2 / 2 +
+                Number(this.props.paddingLeft ? this.props.paddingLeft : 0) -
+                (this.props.height / 2.5) * donutOffset +
+                donutAxis[0]
+              }
+              y={
+                this.props.height / 2 -
+                (this.props.height / 2.5) * donutOffset +
+                donutAxis[1]
+              }
+            >
+              {this.props.donutComponent(
+                (this.props.height / 2.5) * 2 * donutOffset,
+                (this.props.height / 2.5) * 2 * donutOffset
+              )}
+            </G>
+          )}
         </Svg>
       </View>
     );
