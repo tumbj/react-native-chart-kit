@@ -99,7 +99,9 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
     const interval =
       (this.props.setScale ? this.props.setScale : scale[1]) * secPerHour;
 
-    const lowwerBoundary = Math.floor(startTime / 1000 / interval) * interval;
+    let lowwerBoundary = Math.floor(startTime / 1000 / interval) * interval;
+    lowwerBoundary -=
+      (new Date(lowwerBoundary * 1000).getHours() % 3) * secPerHour;
     const upperBoundary = Math.ceil(endTime / 1000 / interval) * interval;
     const count = Math.floor(
       Math.abs(upperBoundary - lowwerBoundary) / interval
