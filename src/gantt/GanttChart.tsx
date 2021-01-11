@@ -114,7 +114,9 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
 
   getTimeLabels = () => {
     const [startTime, endTime, interval, count] = this.calcTimeBoundary();
-    return new Array(count + (this.props.enableEndVerticalLabel ? 1 : 0))
+    return new Array(
+      count + (count > 0 && this.props.enableEndVerticalLabel ? 1 : 0)
+    )
       .fill(startTime)
       .map(
         (_, index) => new Date(startTime.valueOf() + index * interval * 1000)
