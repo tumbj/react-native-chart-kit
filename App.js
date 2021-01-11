@@ -219,7 +219,6 @@ export default class App extends React.Component {
                 flatColor={true}
                 barRoundedCap={true}
                 setScale={3}
-                enableEndVerticalLabel={true}
               />
               <Text style={labelStyle}>Bar Graph</Text>
               <BarChart

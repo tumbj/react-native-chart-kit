@@ -44,7 +44,6 @@ export interface GanttChartProps extends AbstractChartProps {
   dateFormatter?: (date: Date) => string;
   barRoundedCap?: boolean;
   setScale?: number;
-  enableEndVerticalLabel?: boolean;
 }
 
 type GanttChartState = {};
@@ -116,9 +115,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
 
   getTimeLabels = () => {
     const [startTime, endTime, interval, count] = this.calcTimeBoundary();
-    return new Array(
-      count + (count > 0 && this.props.enableEndVerticalLabel ? 1 : 0)
-    )
+    return new Array(count)
       .fill(startTime)
       .map(
         (_, index) => new Date(startTime.valueOf() + index * interval * 1000)
@@ -275,79 +272,6 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
     });
   };
 
-  renderVerticalLabels = ({
-    labels = [],
-    width,
-    height,
-    paddingRight,
-    paddingTop,
-    horizontalOffset = 0,
-    stackedBar = false,
-    verticalLabelRotation = 0,
-    formatXLabel = xLabel => xLabel,
-    enableEndVerticalLabel = false
-  }: Pick<
-    AbstractChartConfig,
-    | "labels"
-    | "width"
-    | "height"
-    | "paddingRight"
-    | "paddingTop"
-    | "horizontalOffset"
-    | "stackedBar"
-    | "verticalLabelRotation"
-    | "formatXLabel"
-  > & {
-    enableEndVerticalLabel: boolean;
-  }) => {
-    const {
-      xAxisLabel = "",
-      xLabelsOffset = 0,
-      hidePointsAtIndex = []
-    } = this.props;
-
-    const fontSize = 12;
-
-    let fac = 1;
-    if (stackedBar) {
-      fac = 0.71;
-    }
-
-    return labels.map((label, i) => {
-      if (hidePointsAtIndex.includes(i)) {
-        return null;
-      }
-
-      const x =
-        (((width - paddingRight) /
-          (labels.length - (enableEndVerticalLabel ? 1 : 0))) *
-          i +
-          paddingRight +
-          horizontalOffset) *
-          fac -
-        (enableEndVerticalLabel && i == labels.length - 1
-          ? paddingRight * 0.5
-          : 0);
-
-      const y = (height * 3) / 4 + paddingTop + fontSize * 2 + xLabelsOffset;
-
-      return (
-        <Text
-          origin={`${x}, ${y}`}
-          rotation={verticalLabelRotation}
-          key={Math.random()}
-          x={x}
-          y={y}
-          textAnchor={verticalLabelRotation === 0 ? "middle" : "start"}
-          {...this.getPropsForLabels()}
-          {...this.getPropsForVerticalLabels()}
-        >
-          {`${formatXLabel(label)}${xAxisLabel}`}
-        </Text>
-      );
-    });
-  };
-
   render() {
     const {
       width,
@@ -362,8 +286,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
       withHorizontalInnerLines = false,
       withCustomBarColorFromData = false,
       flatColor = false,
-      barRoundedCap = false,
-      enableEndVerticalLabel = false
+      barRoundedCap = false
     } = this.props;
 
     const { borderRadius = 0, paddingTop = 32, paddingRight = 64 } = style;
@@ -449,8 +372,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
                   ...config,
                   labels: this.getTimeLabels(),
                   paddingRight: paddingRight as number,
-                  paddingTop: paddingTop as number,
-                  enableEndVerticalLabel: enableEndVerticalLabel as boolean
+                  paddingTop: paddingTop as number
                 })
               : null}
           </G>
