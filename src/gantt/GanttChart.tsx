@@ -43,7 +43,7 @@ export interface GanttChartProps extends AbstractChartProps {
   flatColor?: boolean;
   dateFormatter?: (date: Date) => string;
   barRoundedCap?: boolean;
-  setHour?: number;
+  setScale?: number;
   enableEndVerticalLabel?: boolean;
 }
 
@@ -97,7 +97,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
         return numberOfHour > duration;
       }) || timeScales[1];
     const interval =
-      (this.props.setHour ? this.props.setHour : scale[1]) * secPerHour;
+      (this.props.setScale ? this.props.setScale : scale[1]) * secPerHour;
 
     const lowwerBoundary = Math.floor(startTime / 1000 / interval) * interval;
     const upperBoundary = Math.ceil(endTime / 1000 / interval) * interval;
