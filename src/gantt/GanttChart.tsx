@@ -44,7 +44,7 @@ export interface GanttChartProps extends AbstractChartProps {
   dateFormatter?: (date: Date) => string;
   barRoundedCap?: boolean;
   setScale?: number;
-  setTimeLabelNumber?: string;
+  setTimeLabelNumber?: "even" | "odd";
 }
 
 type GanttChartState = {};
