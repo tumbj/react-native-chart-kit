@@ -70,7 +70,7 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
     lowwerBoundary: number,
     secPerHour: number
   ): number => {
-    switch (labelNumber.toLocaleLowerCase()) {
+    switch (labelNumber) {
       case "even":
         return (new Date(lowwerBoundary * 1000).getHours() % 2) * secPerHour;
       case "odd":
@@ -116,7 +116,9 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
 
     const lowwerBoundary = Math.floor(startTime / 1000 / interval) * interval;
     const timeDifference = this.timeDifference(
-      this.props.setTimeLabelNumber,
+      this.props.setTimeLabelNumber
+        ? this.props.setTimeLabelNumber.toLocaleLowerCase()
+        : "",
       lowwerBoundary,
       secPerHour
     );
