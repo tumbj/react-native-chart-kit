@@ -200,6 +200,26 @@ export default class App extends React.Component {
                 flatColor={true}
                 barRoundedCap={true}
               />
+              <GanttChart
+                width={width}
+                height={height}
+                data={ganttChartData}
+                chartConfig={chartConfig}
+                style={graphStyle}
+                withVerticalInnerLines={true}
+                dateFormatter={date =>
+                  date
+                    .toISOString()
+                    .split("T")[1]
+                    .split(":")
+                    .slice(0, 2)
+                    .join(":")
+                }
+                withCustomBarColorFromData={true}
+                flatColor={true}
+                barRoundedCap={true}
+                setScale={3}
+              />
               <Text style={labelStyle}>Bar Graph</Text>
               <BarChart
                 width={width}

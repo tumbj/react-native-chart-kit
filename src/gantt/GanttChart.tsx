@@ -43,6 +43,8 @@ export interface GanttChartProps extends AbstractChartProps {
   flatColor?: boolean;
   dateFormatter?: (date: Date) => string;
   barRoundedCap?: boolean;
+  setScale?: number;
+  setTimeLabelNumber?: "even" | "odd";
 }
 
 type GanttChartState = {};
@@ -61,6 +63,21 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
         this.getBarPercentage(),
       10
     );
+  };
+
+  timeDifference = (
+    labelNumber: string,
+    lowwerBoundary: number,
+    secPerHour: number
+  ): number => {
+    switch (labelNumber) {
+      case "even":
+        return (new Date(lowwerBoundary * 1000).getHours() % 2) * secPerHour;
+      case "odd":
+        return (new Date(lowwerBoundary * 1000).getHours() % 3) * secPerHour;
+      default:
+        return 0;
+    }
   };
 
   calcTimeBoundary = (): [Date, Date, number, number] => {
@@ -94,19 +111,26 @@ class GanttChart extends AbstractChart<GanttChartProps, GanttChartState> {
       timeScales.find(([duration, _]) => {
         return numberOfHour > duration;
       }) || timeScales[1];
-    const interval = scale[1] * secPerHour;
+    const interval =
+      (this.props.setScale ? this.props.setScale : scale[1]) * secPerHour;
 
     const lowwerBoundary = Math.floor(startTime / 1000 / interval) * interval;
+    const timeDifference = this.timeDifference(
+      this.props.setTimeLabelNumber
+        ? this.props.setTimeLabelNumber.toLocaleLowerCase()
+        : "",
+      lowwerBoundary,
+      secPerHour
+    );
     const upperBoundary = Math.ceil(endTime / 1000 / interval) * interval;
     const count = Math.floor(
       Math.abs(upperBoundary - lowwerBoundary) / interval
     );
     return [
-      new Date(lowwerBoundary * 1000),
+      new Date((lowwerBoundary - timeDifference) * 1000),
       new Date(upperBoundary * 1000),
       interval,
       count === Infinity || count === NaN ? 0 : count
-
     ];
   };
 
