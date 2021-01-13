@@ -96,6 +96,10 @@ export interface BarChartProps extends AbstractChartProps {
    */
   isShowUnderBarLine?: boolean;
   underBarLineColor?: string;
+  /**
+   * show count of line on  Y axis
+   */
+  isShowDefaultLabelYAxis?: boolean;
 }
 
 type BarChartState = {};
@@ -633,6 +637,65 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
           {...this.getPropsForVerticalLabels()}
         >
           {`${formatXLabel(label)}${xAxisLabel}`}
+        </Text>
+      );
+    });
+  };
+
+  renderHorizontalLabels = (
+    config: Omit<AbstractChartConfig, "data"> & { data: number[] }
+  ) => {
+    const {
+      count,
+      data,
+      height,
+      paddingTop,
+      paddingRight,
+      horizontalLabelRotation = 0,
+      decimalPlaces = 2,
+      formatYLabel = (yLabel: string) => yLabel
+    } = config;
+
+    const {
+      yAxisLabel = "",
+      yAxisSuffix = "",
+      yLabelsOffset = 12,
+      isShowDefaultLabelYAxis = false
+    } = this.props;
+    return new Array(count === 1 ? 1 : count + 1).fill(1).map((_, i) => {
+      let yLabel = String(i * count);
+      if (count === 1) {
+        yLabel = `${yAxisLabel}${formatYLabel(
+          isShowDefaultLabelYAxis
+            ? i.toString()
+            : data[0].toFixed(decimalPlaces)
+        )}${yAxisSuffix}`;
+      } else {
+        const label = this.props.fromZero
+          ? (this.calcScaler(data) / count) * i + Math.min(...data, 0)
+          : (this.calcScaler(data) / count) * i + Math.min(...data);
+        yLabel = `${yAxisLabel}${formatYLabel(
+          isShowDefaultLabelYAxis ? i.toString() : label.toFixed(decimalPlaces)
+        )}${yAxisSuffix}`;
+      }
+      const basePosition = height - height / 4;
+      const x = paddingRight - yLabelsOffset;
+      const y =
+        count === 1 && this.props.fromZero
+          ? paddingTop + 4
+          : (height * 3) / 4 - (basePosition / count) * i + paddingTop;
+      return (
+        <Text
+          rotation={horizontalLabelRotation}
+          origin={`${x}, ${y}`}
+          key={Math.random()}
+          x={x}
+          textAnchor="end"
+          y={y}
+          {...this.getPropsForLabels()}
+          {...this.getPropsForHorizontalLabels()}
+        >
+          {yLabel}
         </Text>
       );
     });
