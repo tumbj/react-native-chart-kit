@@ -64,7 +64,7 @@ class ProgressChart extends AbstractChart<
         data
       };
     }
-    const goalPoints = data.goalPointData.map((goalData, i) => {
+    const goalPoints = data.goalPointData?.map((goalData, i) => {
       const r =
         ((height / 2 - 32) /
           (Array.isArray(data) ? data.length : data.data.length)) *
@@ -246,24 +246,25 @@ class ProgressChart extends AbstractChart<
               })}
             </G>
             <G>
-              {goalPoints.map((goal, i) => {
-                return (
-                  <Circle
-                    key={Math.random()}
-                    cx={goal.centroid[0]}
-                    cy={goal.centroid[1]}
-                    r={strokeWidth / 2}
-                    fill={
-                      this.props.withCustomColorGoalPoint
-                        ? withGoalPointColor(i)
-                        : this.props.chartConfig.color(
-                            (i / pies.length) * 0.5 + 0.5,
-                            i
-                          )
-                    }
-                  />
-                );
-              })}
+              {goalPoints &&
+                goalPoints.map((goal, i) => {
+                  return (
+                    <Circle
+                      key={Math.random()}
+                      cx={goal.centroid[0]}
+                      cy={goal.centroid[1]}
+                      r={strokeWidth / 2}
+                      fill={
+                        this.props.withCustomColorGoalPoint
+                          ? withGoalPointColor(i)
+                          : this.props.chartConfig.color(
+                              (i / pies.length) * 0.5 + 0.5,
+                              i
+                            )
+                      }
+                    />
+                  );
+                })}
             </G>
             {legend}
           </G>
