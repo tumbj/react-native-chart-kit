@@ -50,6 +50,10 @@ export interface ProgressChartProps extends AbstractChartProps {
    * show shadow of pie data - default: false.
    */
   isShowPieShadow?: boolean;
+  /**
+   * ring will rotation when data more than 1.0  - default: false.
+   */
+  isShouldRotation?: boolean;
 }
 
 type ProgressChartState = {};
@@ -69,7 +73,8 @@ class ProgressChart extends AbstractChart<
       hideLegend,
       strokeWidth,
       radius,
-      isShowPieShadow = false
+      isShowPieShadow = false,
+      isShouldRotation = false
     } = this.props;
 
     const { borderRadius = 0, margin = 0, marginRight = 0 } = style;
@@ -79,16 +84,17 @@ class ProgressChart extends AbstractChart<
         data
       };
     }
-    const goalPoints = data.goalPointData?.map((goalData, i) => {
+
+    const calCentroid = (spotData: number, i: number) => {
       const r =
         ((height / 2 - 32) /
           (Array.isArray(data) ? data.length : data.data.length)) *
           i +
         radius;
-      let goalTwice: number = goalData * 2;
+      let doubleSpotData: number = spotData * 2;
       let isLeftZone: boolean = false;
-      if (goalTwice > 1.0) {
-        goalTwice -= 1;
+      if (doubleSpotData > 1.0) {
+        doubleSpotData -= 1;
         isLeftZone = true;
       }
       return {
@@ -96,36 +102,19 @@ class ProgressChart extends AbstractChart<
           r,
           R: r,
           center: [0, 0],
-          data: [goalTwice, 1 - goalTwice],
+          data: [doubleSpotData, 1 - doubleSpotData],
           accessor(x: string) {
             return x;
           }
         }).curves[isLeftZone ? 1 : 0].sector.centroid
       };
+    };
+
+    const goalPoints = data.goalPointData?.map((goalData, i) => {
+      return calCentroid(goalData, i);
     });
     const shadowPoints = data.data?.map((shadowData, i) => {
-      const r =
-        ((height / 2 - 32) /
-          (Array.isArray(data) ? data.length : data.data.length)) *
-          i +
-        radius;
-      let shadowTwice: number = shadowData * 2;
-      let isLeftZone: boolean = false;
-      if (shadowTwice > 1.0) {
-        shadowTwice -= 1;
-        isLeftZone = true;
-      }
-      return {
-        centroid: Pie({
-          r,
-          R: r,
-          center: [0, 0],
-          data: [shadowTwice, 1 - shadowTwice],
-          accessor(x: string) {
-            return x;
-          }
-        }).curves[isLeftZone ? 1 : 0].sector.centroid
-      };
+      return calCentroid(shadowData, i);
     });
     const pies = data.data.map((pieData, i) => {
       const r =
@@ -148,7 +137,7 @@ class ProgressChart extends AbstractChart<
       });
     });
 
-    const pieBackgrounds = data.data.map((pieData, i) => {
+    const pieBackgrounds = data.data.map((_, i) => {
       const r =
         ((height / 2 - 32) /
           (Array.isArray(data) ? data.length : data.data.length)) *
@@ -173,6 +162,8 @@ class ProgressChart extends AbstractChart<
 
     const withGoalPointColor = (i: number) =>
       (data as any).goalPointColors && (data as any).goalPointColors[i];
+
+    const withData = (i: number) => (data as any).data && (data as any).data[i];
 
     const legend = !hideLegend && (
       <>
@@ -229,7 +220,7 @@ class ProgressChart extends AbstractChart<
     };
     const defaultShadowRotation = 90;
     const circuleCircumference = 2 * Math.PI * (strokeWidth / 2);
-    const shadow = (fraction: number, xAxis: number, yAxis: number) => {
+    const pieShadow = (fraction: number, xAxis: number, yAxis: number) => {
       return (
         <G
           rotation={calDegree(fraction) - defaultShadowRotation}
@@ -305,8 +296,11 @@ class ProgressChart extends AbstractChart<
             </G>
             <G>
               {pies.map((pie, i) => {
-                const pieData = data.data[i];
-                const RingDegree = pieData > 1.0 ? calDegree(pieData % 1) : 0;
+                const pieData = withData(i);
+                const RingDegree =
+                  isShouldRotation && pieData > 1.0
+                    ? calDegree(pieData % 1)
+                    : 0;
                 return (
                   <G key={`pie-data-id${i}`}>
                     <G rotation={RingDegree}>
@@ -327,7 +321,7 @@ class ProgressChart extends AbstractChart<
                       />
                     </G>
                     {isShowPieShadow &&
-                      shadow(
+                      pieShadow(
                         pieData % 1,
                         shadowPoints[i].centroid[0],
                         shadowPoints[i].centroid[1]
