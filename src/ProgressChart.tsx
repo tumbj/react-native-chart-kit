@@ -219,7 +219,9 @@ class ProgressChart extends AbstractChart<
       return fraction * 360;
     };
     const defaultShadowRotation = 90;
-    const circuleCircumference = 2 * Math.PI * (strokeWidth / 2);
+    const circleRadius = strokeWidth / 2;
+    const shadowRadius = circleRadius - circleRadius * 0.05;
+    const circleCircumference = 2 * Math.PI * shadowRadius;
     const pieShadow = (fraction: number, xAxis: number, yAxis: number) => {
       return (
         <G
@@ -230,10 +232,12 @@ class ProgressChart extends AbstractChart<
           <Circle
             cx={xAxis}
             cy={yAxis}
-            r={strokeWidth / 2}
+            r={shadowRadius}
+            strokeWidth={1.5}
             stroke="url(#shadowChart)"
-            strokeDasharray={circuleCircumference}
-            strokeDashoffset={circuleCircumference / 2}
+            strokeOpacity={0.4}
+            strokeDasharray={circleCircumference}
+            strokeDashoffset={circleCircumference / 2}
           />
         </G>
       );
