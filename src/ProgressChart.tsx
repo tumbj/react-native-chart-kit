@@ -1,7 +1,17 @@
 import Pie from "paths-js/pie";
 import React from "react";
 import { View, ViewStyle } from "react-native";
-import { Circle, Defs, G, Path, Rect, Svg, Text } from "react-native-svg";
+import {
+  Circle,
+  Defs,
+  G,
+  Path,
+  RadialGradient,
+  Rect,
+  Stop,
+  Svg,
+  Text
+} from "react-native-svg";
 
 import AbstractChart, {
   AbstractChartConfig,
@@ -36,6 +46,14 @@ export interface ProgressChartProps extends AbstractChartProps {
   radius?: number;
   withCustomBarColorFromData?: boolean;
   withCustomColorGoalPoint?: boolean;
+  /**
+   * show shadow of pie data - default: false.
+   */
+  isShowPieShadow?: boolean;
+  /**
+   * ring will rotation when data more than 1.0  - default: false.
+   */
+  isShouldRotation?: boolean;
 }
 
 type ProgressChartState = {};
@@ -54,7 +72,9 @@ class ProgressChart extends AbstractChart<
       data,
       hideLegend,
       strokeWidth,
-      radius
+      radius,
+      isShowPieShadow = false,
+      isShouldRotation = false
     } = this.props;
 
     const { borderRadius = 0, margin = 0, marginRight = 0 } = style;
@@ -64,16 +84,17 @@ class ProgressChart extends AbstractChart<
         data
       };
     }
-    const goalPoints = data.goalPointData?.map((goalData, i) => {
+
+    const calCentroid = (spotData: number, i: number) => {
       const r =
         ((height / 2 - 32) /
           (Array.isArray(data) ? data.length : data.data.length)) *
           i +
         radius;
-      let goalTwice: number = goalData * 2;
+      let doubleSpotData: number = spotData * 2;
       let isLeftZone: boolean = false;
-      if (goalTwice > 1.0) {
-        goalTwice -= 1;
+      if (doubleSpotData > 1.0) {
+        doubleSpotData -= 1;
         isLeftZone = true;
       }
       return {
@@ -81,12 +102,19 @@ class ProgressChart extends AbstractChart<
           r,
           R: r,
           center: [0, 0],
-          data: [goalTwice, 1 - goalTwice],
+          data: [doubleSpotData, 1 - doubleSpotData],
           accessor(x: string) {
             return x;
           }
         }).curves[isLeftZone ? 1 : 0].sector.centroid
       };
+    };
+
+    const goalPoints = data.goalPointData?.map((goalData, i) => {
+      return calCentroid(goalData, i);
+    });
+    const shadowPoints = data.data?.map((shadowData, i) => {
+      return calCentroid(shadowData, i);
     });
     const pies = data.data.map((pieData, i) => {
       const r =
@@ -94,19 +122,22 @@ class ProgressChart extends AbstractChart<
           (Array.isArray(data) ? data.length : data.data.length)) *
           i +
         radius;
-
+      let limitData = pieData;
+      if (pieData > 1.0) {
+        limitData = 1.0;
+      }
       return Pie({
         r,
         R: r,
         center: [0, 0],
-        data: [pieData, 1 - pieData],
+        data: [limitData, 1 - limitData],
         accessor(x: string) {
           return x;
         }
       });
     });
 
-    const pieBackgrounds = data.data.map((pieData, i) => {
+    const pieBackgrounds = data.data.map((_, i) => {
       const r =
         ((height / 2 - 32) /
           (Array.isArray(data) ? data.length : data.data.length)) *
@@ -131,6 +162,8 @@ class ProgressChart extends AbstractChart<
 
     const withGoalPointColor = (i: number) =>
       (data as any).goalPointColors && (data as any).goalPointColors[i];
+
+    const withData = (i: number) => (data as any).data && (data as any).data[i];
 
     const legend = !hideLegend && (
       <>
@@ -182,6 +215,33 @@ class ProgressChart extends AbstractChart<
         </G>
       </>
     );
+    const calDegree = (fraction: number) => {
+      return fraction * 360;
+    };
+    const defaultShadowRotation = 90;
+    const circleRadius = strokeWidth / 2;
+    const shadowRadius = circleRadius - circleRadius * 0.05;
+    const circleCircumference = 2 * Math.PI * shadowRadius;
+    const pieShadow = (fraction: number, xAxis: number, yAxis: number) => {
+      return (
+        <G
+          rotation={calDegree(fraction) - defaultShadowRotation}
+          originX={xAxis}
+          originY={yAxis}
+        >
+          <Circle
+            cx={xAxis}
+            cy={yAxis}
+            r={shadowRadius}
+            strokeWidth={1.5}
+            stroke="url(#shadowChart)"
+            strokeOpacity={0.4}
+            strokeDasharray={circleCircumference}
+            strokeDashoffset={circleCircumference / 2}
+          />
+        </G>
+      );
+    };
     return (
       <View
         style={{
@@ -194,13 +254,27 @@ class ProgressChart extends AbstractChart<
         <Svg
           width={width - (margin as number) * 2 - (marginRight as number)}
           height={height}
+          fill="none"
         >
           {this.renderDefs({
             width: this.props.height,
             height: this.props.height,
             ...this.props.chartConfig
           })}
-          <Defs>{data.gradientColors}</Defs>
+          <Defs>
+            {data.gradientColors}
+            <RadialGradient
+              id="shadowChart"
+              cx={0}
+              cy={0}
+              r={1}
+              gradientUnits="userSpaceOnUse"
+              gradientTransform="rotate(90 0 110) scale(110)"
+            >
+              <Stop stopColor="transparent" stopOpacity={0} />
+              <Stop offset={1} stopColor="#000000" stopOpacity={0.7} />
+            </RadialGradient>
+          </Defs>
           <Rect
             width="100%"
             height={this.props.height}
@@ -226,22 +300,37 @@ class ProgressChart extends AbstractChart<
             </G>
             <G>
               {pies.map((pie, i) => {
+                const pieData = withData(i);
+                const RingDegree =
+                  isShouldRotation && pieData > 1.0
+                    ? calDegree(pieData % 1)
+                    : 0;
                 return (
-                  <Path
-                    key={Math.random()}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d={pie.curves[0].sector.path.print()}
-                    strokeWidth={strokeWidth}
-                    stroke={
-                      this.props.withCustomBarColorFromData
-                        ? withColor(i)
-                        : this.props.chartConfig.color(
-                            (i / pies.length) * 0.5 + 0.5,
-                            i
-                          )
-                    }
-                  />
+                  <G key={`pie-data-id${i}`}>
+                    <G rotation={RingDegree}>
+                      <Path
+                        key={Math.random()}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d={pie.curves[0].sector.path.print()}
+                        strokeWidth={strokeWidth}
+                        stroke={
+                          this.props.withCustomBarColorFromData
+                            ? withColor(i)
+                            : this.props.chartConfig.color(
+                                (i / pies.length) * 0.5 + 0.5,
+                                i
+                              )
+                        }
+                      />
+                    </G>
+                    {isShowPieShadow &&
+                      pieShadow(
+                        pieData % 1,
+                        shadowPoints[i].centroid[0],
+                        shadowPoints[i].centroid[1]
+                      )}
+                  </G>
                 );
               })}
             </G>
