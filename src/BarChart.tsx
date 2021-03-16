@@ -220,7 +220,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     withLinearGradient,
     colors,
     barPaddingTop,
-    barPaddingRight
+    barPaddingRight,
+    setMaxData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop" | "barRadius" | "color"
@@ -231,12 +232,13 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     colors?: ((opacity: number) => string)[];
     barPaddingTop: number;
     barPaddingRight: number;
+    setMaxData: number[];
   }) => {
-    const baseHeight = this.calcBaseHeight(data, height);
+    const baseHeight = this.calcBaseHeight(setMaxData, height);
     const barWidth = 32 * this.getBarPercentage();
 
     return data.map((x, i) => {
-      const barHeight = this.calcHeight(x, data, height);
+      const barHeight = this.calcHeight(x, setMaxData, height);
       const xAxis =
         paddingRight +
         (i * (width - paddingRight - barPaddingRight)) / data.length +
@@ -368,18 +370,20 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     height,
     paddingTop,
     paddingRight,
-    barPaddingRight
+    barPaddingRight,
+    setMaxData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop"
   > & {
     data: number[];
     barPaddingRight: number;
+    setMaxData: number[];
   }) => {
-    const baseHeight = this.calcBaseHeight(data, height);
+    const baseHeight = this.calcBaseHeight(setMaxData, height);
 
     return data.map((x, i) => {
-      const barHeight = this.calcHeight(x, data, height);
+      const barHeight = this.calcHeight(x, setMaxData, height);
       const barWidth = 32 * this.getBarPercentage();
       return (
         <Rect
@@ -675,7 +679,11 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
           ? (this.calcScaler(data) / count) * i + Math.min(...data, 0)
           : (this.calcScaler(data) / count) * i + Math.min(...data);
         yLabel = `${yAxisLabel}${formatYLabel(
-          isShowDefaultLabelYAxis ? i.toString() : label.toFixed(decimalPlaces)
+          isShowDefaultLabelYAxis
+            ? i.toString()
+            : decimalPlaces === 0
+            ? Math.ceil(label).toString()
+            : label.toFixed(decimalPlaces)
         )}${yAxisSuffix}`;
       }
       const basePosition = height - height / 4;
@@ -749,6 +757,15 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
         }
     };
 
+    const setMaxData = [
+      ...data.datasets[0].data,
+      Math.ceil(
+        data.datasets[0].data.reduce((max, current) =>
+          max > current ? max : current
+        )
+      )
+    ];
+
     return (
       <View style={style}>
         <Svg height={height} width={width}>
@@ -812,7 +829,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
               withLinearGradient: data.gradientColors ? true : false,
               colors: data.datasets[0].colors,
               barPaddingTop: barPaddingTop,
-              barPaddingRight: barPaddingRight
+              barPaddingRight: barPaddingRight,
+              setMaxData: setMaxData
             })}
           </G>
           <G>
@@ -843,7 +861,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                 data: data.datasets[0].data,
                 paddingTop: (paddingTop as number) + barPaddingTop,
                 paddingRight: paddingRight as number,
-                barPaddingRight: barPaddingRight
+                barPaddingRight: barPaddingRight,
+                setMaxData: setMaxData
               })}
           </G>
           <G>
