@@ -668,7 +668,9 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
         yLabel = `${yAxisLabel}${formatYLabel(
           isShowDefaultLabelYAxis
             ? i.toString()
-            : data[0].toFixed(decimalPlaces)
+            : data
+                .reduce((max, current) => (max > current ? max : current))
+                .toFixed(decimalPlaces)
         )}${yAxisSuffix}`;
       } else {
         const label = this.props.fromZero
