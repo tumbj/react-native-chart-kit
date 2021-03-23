@@ -100,6 +100,10 @@ export interface BarChartProps extends AbstractChartProps {
    * show count of line on  Y axis
    */
   isShowDefaultLabelYAxis?: boolean;
+  /**
+   * fact for make equal distance of Y axis label
+   */
+  isRoundingYAxisLabel?: boolean;
 }
 
 type BarChartState = {};
@@ -220,7 +224,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     withLinearGradient,
     colors,
     barPaddingTop,
-    barPaddingRight
+    barPaddingRight,
+    roundingData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop" | "barRadius" | "color"
@@ -231,12 +236,13 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     colors?: ((opacity: number) => string)[];
     barPaddingTop: number;
     barPaddingRight: number;
+    roundingData: number[];
   }) => {
-    const baseHeight = this.calcBaseHeight(data, height);
+    const baseHeight = this.calcBaseHeight(roundingData, height);
     const barWidth = 32 * this.getBarPercentage();
 
     return data.map((x, i) => {
-      const barHeight = this.calcHeight(x, data, height);
+      const barHeight = this.calcHeight(x, roundingData, height);
       const xAxis =
         paddingRight +
         (i * (width - paddingRight - barPaddingRight)) / data.length +
@@ -278,7 +284,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     paddingRight,
     barPaddingTop,
     bubbleWidth = 71,
-    barPaddingRight
+    barPaddingRight,
+    roundingData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop"
@@ -287,12 +294,13 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     barPaddingTop: number;
     bubbleWidth?: number;
     barPaddingRight: number;
+    roundingData: number[];
   }) => {
-    const baseHeight = this.calcBaseHeight(data, height);
+    const baseHeight = this.calcBaseHeight(roundingData, height);
     const endPoint = width - paddingRight;
     return data.map((x, i) => {
       if (x && this.state.barIndex === i) {
-        const barHeight = this.calcHeight(x, data, height);
+        const barHeight = this.calcHeight(x, roundingData, height);
         const barWidth = 32 * this.getBarPercentage();
         const xAxis =
           paddingRight +
@@ -368,18 +376,20 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     height,
     paddingTop,
     paddingRight,
-    barPaddingRight
+    barPaddingRight,
+    roundingData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop"
   > & {
     data: number[];
     barPaddingRight: number;
+    roundingData: number[];
   }) => {
-    const baseHeight = this.calcBaseHeight(data, height);
+    const baseHeight = this.calcBaseHeight(roundingData, height);
 
     return data.map((x, i) => {
-      const barHeight = this.calcHeight(x, data, height);
+      const barHeight = this.calcHeight(x, roundingData, height);
       const barWidth = 32 * this.getBarPercentage();
       return (
         <Rect
@@ -456,7 +466,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     textColor = "#4F58DF",
     textAnchor = "middle",
     fontSize = 18,
-    fontFamily = ""
+    fontFamily = "",
+    roundingData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop"
@@ -470,9 +481,10 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     textAnchor?: TextAnchor;
     fontSize?: number;
     fontFamily?: string;
+    roundingData: number[];
   }) => {
-    const baseHeight = this.calcBaseHeight(data, height);
-    const barHeight = this.calcHeight(threshold, data, height);
+    const baseHeight = this.calcBaseHeight(roundingData, height);
+    const barHeight = this.calcHeight(threshold, roundingData, height);
     const barWidth = 32 * this.getBarPercentage();
     const yAxis =
       ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
@@ -514,16 +526,18 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     height,
     paddingTop,
     paddingRight,
-    lineColor
+    lineColor,
+    roundingData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop"
   > & {
     data: number[];
     lineColor: string;
+    roundingData: number[];
   }) => {
-    const baseHeight = this.calcBaseHeight(data, height);
-    const barHeight = this.calcHeight(0, data, height);
+    const baseHeight = this.calcBaseHeight(roundingData, height);
+    const barHeight = this.calcHeight(0, roundingData, height);
     const barWidth = 32 * this.getBarPercentage();
     const yAxis =
       ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
@@ -542,18 +556,20 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     height,
     paddingTop,
     paddingRight,
-    barPaddingRight
+    barPaddingRight,
+    roundingData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop"
   > & {
     data: number[];
     barPaddingRight: number;
+    roundingData: number[];
   }) => {
-    const baseHeight = this.calcBaseHeight(data, height);
+    const baseHeight = this.calcBaseHeight(roundingData, height);
 
     return data.map((x, i) => {
-      const barHeight = this.calcHeight(x, data, height);
+      const barHeight = this.calcHeight(x, roundingData, height);
       const barWidth = 32 * this.getBarPercentage();
       return (
         <Text
@@ -643,7 +659,10 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
   };
 
   renderHorizontalLabels = (
-    config: Omit<AbstractChartConfig, "data"> & { data: number[] }
+    config: Omit<AbstractChartConfig, "data"> & {
+      data: number[];
+      roundingData: number[];
+    }
   ) => {
     const {
       count,
@@ -653,7 +672,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
       paddingRight,
       horizontalLabelRotation = 0,
       decimalPlaces = 2,
-      formatYLabel = (yLabel: string) => yLabel
+      formatYLabel = (yLabel: string) => yLabel,
+      roundingData
     } = config;
 
     const {
@@ -668,14 +688,16 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
         yLabel = `${yAxisLabel}${formatYLabel(
           isShowDefaultLabelYAxis
             ? i.toString()
-            : data
+            : roundingData
                 .reduce((max, current) => (max > current ? max : current))
                 .toFixed(decimalPlaces)
         )}${yAxisSuffix}`;
       } else {
         const label = this.props.fromZero
-          ? (this.calcScaler(data) / count) * i + Math.min(...data, 0)
-          : (this.calcScaler(data) / count) * i + Math.min(...data);
+          ? (this.calcScaler(roundingData) / count) * i +
+            Math.min(...roundingData, 0)
+          : (this.calcScaler(roundingData) / count) * i +
+            Math.min(...roundingData);
         yLabel = `${yAxisLabel}${formatYLabel(
           isShowDefaultLabelYAxis ? i.toString() : label.toFixed(decimalPlaces)
         )}${yAxisSuffix}`;
@@ -751,6 +773,15 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
         }
     };
 
+    const getRoundingData = (data: number[], divider: number) => {
+      const quotient = this.calcScaler(data) / divider;
+      const maxRoundingDatum = Math.ceil(quotient) * divider;
+      return quotient % 1 !== 0 ? [...data, maxRoundingDatum] : data;
+    };
+    const roundingData = this.props.isRoundingYAxisLabel
+      ? getRoundingData(data.datasets[0].data, segments)
+      : data.datasets[0].data;
+
     return (
       <View style={style}>
         <Svg height={height} width={width}>
@@ -788,7 +819,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                   count: segments,
                   data: data.datasets[0].data,
                   paddingTop: (paddingTop as number) + barPaddingTop,
-                  paddingRight: paddingRight as number
+                  paddingRight: paddingRight as number,
+                  roundingData
                 })
               : null}
           </G>
@@ -814,7 +846,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
               withLinearGradient: data.gradientColors ? true : false,
               colors: data.datasets[0].colors,
               barPaddingTop: barPaddingTop,
-              barPaddingRight: barPaddingRight
+              barPaddingRight: barPaddingRight,
+              roundingData
             })}
           </G>
           <G>
@@ -824,7 +857,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                   data: data.datasets[0].data,
                   paddingTop: (paddingTop as number) + barPaddingTop,
                   paddingRight: paddingRight as number,
-                  lineColor: underBarLineColor
+                  lineColor: underBarLineColor,
+                  roundingData
                 })
               : null}
           </G>
@@ -835,7 +869,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                 data: data.datasets[0].data,
                 paddingTop: (paddingTop as number) + barPaddingTop,
                 paddingRight: paddingRight as number,
-                barPaddingRight: barPaddingRight
+                barPaddingRight: barPaddingRight,
+                roundingData
               })}
           </G>
           <G>
@@ -845,7 +880,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                 data: data.datasets[0].data,
                 paddingTop: (paddingTop as number) + barPaddingTop,
                 paddingRight: paddingRight as number,
-                barPaddingRight: barPaddingRight
+                barPaddingRight: barPaddingRight,
+                roundingData
               })}
           </G>
           <G>
@@ -856,7 +892,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                   threshold,
                   paddingTop: (paddingTop as number) + barPaddingTop,
                   paddingRight: paddingRight as number,
-                  ...thresholdConfig
+                  ...thresholdConfig,
+                  roundingData
                 })
               : null}
           </G>
@@ -868,7 +905,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                 paddingTop: paddingTop as number,
                 paddingRight: paddingRight as number,
                 barPaddingTop: barPaddingTop,
-                barPaddingRight: barPaddingRight
+                barPaddingRight: barPaddingRight,
+                roundingData
               })}
           </G>
         </Svg>
