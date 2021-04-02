@@ -103,7 +103,7 @@ export interface BarChartProps extends AbstractChartProps {
   /**
    * fact for make equal distance of Y axis label
    */
-  isRoundingYAxisLabel?: boolean;
+  isCeilingYAxisLabel?: boolean;
 }
 
 type BarChartState = {};
@@ -225,7 +225,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     colors,
     barPaddingTop,
     barPaddingRight,
-    roundingData
+    ceilingData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop" | "barRadius" | "color"
@@ -236,13 +236,13 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     colors?: ((opacity: number) => string)[];
     barPaddingTop: number;
     barPaddingRight: number;
-    roundingData: number[];
+    ceilingData: number[];
   }) => {
-    const baseHeight = this.calcBaseHeight(roundingData, height);
+    const baseHeight = this.calcBaseHeight(ceilingData, height);
     const barWidth = 32 * this.getBarPercentage();
 
     return data.map((x, i) => {
-      const barHeight = this.calcHeight(x, roundingData, height);
+      const barHeight = this.calcHeight(x, ceilingData, height);
       const xAxis =
         paddingRight +
         (i * (width - paddingRight - barPaddingRight)) / data.length +
@@ -285,7 +285,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     barPaddingTop,
     bubbleWidth = 71,
     barPaddingRight,
-    roundingData
+    ceilingData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop"
@@ -294,13 +294,13 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     barPaddingTop: number;
     bubbleWidth?: number;
     barPaddingRight: number;
-    roundingData: number[];
+    ceilingData: number[];
   }) => {
-    const baseHeight = this.calcBaseHeight(roundingData, height);
+    const baseHeight = this.calcBaseHeight(ceilingData, height);
     const endPoint = width - paddingRight;
     return data.map((x, i) => {
       if (x && this.state.barIndex === i) {
-        const barHeight = this.calcHeight(x, roundingData, height);
+        const barHeight = this.calcHeight(x, ceilingData, height);
         const barWidth = 32 * this.getBarPercentage();
         const xAxis =
           paddingRight +
@@ -377,19 +377,19 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     paddingTop,
     paddingRight,
     barPaddingRight,
-    roundingData
+    ceilingData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop"
   > & {
     data: number[];
     barPaddingRight: number;
-    roundingData: number[];
+    ceilingData: number[];
   }) => {
-    const baseHeight = this.calcBaseHeight(roundingData, height);
+    const baseHeight = this.calcBaseHeight(ceilingData, height);
 
     return data.map((x, i) => {
-      const barHeight = this.calcHeight(x, roundingData, height);
+      const barHeight = this.calcHeight(x, ceilingData, height);
       const barWidth = 32 * this.getBarPercentage();
       return (
         <Rect
@@ -467,7 +467,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     textAnchor = "middle",
     fontSize = 18,
     fontFamily = "",
-    roundingData
+    ceilingData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop"
@@ -481,10 +481,10 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     textAnchor?: TextAnchor;
     fontSize?: number;
     fontFamily?: string;
-    roundingData: number[];
+    ceilingData: number[];
   }) => {
-    const baseHeight = this.calcBaseHeight(roundingData, height);
-    const barHeight = this.calcHeight(threshold, roundingData, height);
+    const baseHeight = this.calcBaseHeight(ceilingData, height);
+    const barHeight = this.calcHeight(threshold, ceilingData, height);
     const barWidth = 32 * this.getBarPercentage();
     const yAxis =
       ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
@@ -527,17 +527,17 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     paddingTop,
     paddingRight,
     lineColor,
-    roundingData
+    ceilingData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop"
   > & {
     data: number[];
     lineColor: string;
-    roundingData: number[];
+    ceilingData: number[];
   }) => {
-    const baseHeight = this.calcBaseHeight(roundingData, height);
-    const barHeight = this.calcHeight(0, roundingData, height);
+    const baseHeight = this.calcBaseHeight(ceilingData, height);
+    const barHeight = this.calcHeight(0, ceilingData, height);
     const barWidth = 32 * this.getBarPercentage();
     const yAxis =
       ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
@@ -557,19 +557,19 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
     paddingTop,
     paddingRight,
     barPaddingRight,
-    roundingData
+    ceilingData
   }: Pick<
     Omit<AbstractChartConfig, "data">,
     "width" | "height" | "paddingRight" | "paddingTop"
   > & {
     data: number[];
     barPaddingRight: number;
-    roundingData: number[];
+    ceilingData: number[];
   }) => {
-    const baseHeight = this.calcBaseHeight(roundingData, height);
+    const baseHeight = this.calcBaseHeight(ceilingData, height);
 
     return data.map((x, i) => {
-      const barHeight = this.calcHeight(x, roundingData, height);
+      const barHeight = this.calcHeight(x, ceilingData, height);
       const barWidth = 32 * this.getBarPercentage();
       return (
         <Text
@@ -661,7 +661,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
   renderHorizontalLabels = (
     config: Omit<AbstractChartConfig, "data"> & {
       data: number[];
-      roundingData: number[];
+      ceilingData: number[];
     }
   ) => {
     const {
@@ -673,7 +673,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
       horizontalLabelRotation = 0,
       decimalPlaces = 2,
       formatYLabel = (yLabel: string) => yLabel,
-      roundingData
+      ceilingData
     } = config;
 
     const {
@@ -688,16 +688,16 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
         yLabel = `${yAxisLabel}${formatYLabel(
           isShowDefaultLabelYAxis
             ? i.toString()
-            : roundingData
+            : ceilingData
                 .reduce((max, current) => (max > current ? max : current))
                 .toFixed(decimalPlaces)
         )}${yAxisSuffix}`;
       } else {
         const label = this.props.fromZero
-          ? (this.calcScaler(roundingData) / count) * i +
-            Math.min(...roundingData, 0)
-          : (this.calcScaler(roundingData) / count) * i +
-            Math.min(...roundingData);
+          ? (this.calcScaler(ceilingData) / count) * i +
+            Math.min(...ceilingData, 0)
+          : (this.calcScaler(ceilingData) / count) * i +
+            Math.min(...ceilingData);
         yLabel = `${yAxisLabel}${formatYLabel(
           isShowDefaultLabelYAxis ? i.toString() : label.toFixed(decimalPlaces)
         )}${yAxisSuffix}`;
@@ -778,7 +778,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
       const maxRoundingDatum = Math.ceil(quotient) * divider;
       return quotient % 1 !== 0 ? [...data, maxRoundingDatum] : data;
     };
-    const roundingData = this.props.isRoundingYAxisLabel
+    const ceilingData = this.props.isCeilingYAxisLabel
       ? getRoundingData(data.datasets[0].data, segments)
       : data.datasets[0].data;
 
@@ -820,7 +820,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                   data: data.datasets[0].data,
                   paddingTop: (paddingTop as number) + barPaddingTop,
                   paddingRight: paddingRight as number,
-                  roundingData
+                  ceilingData
                 })
               : null}
           </G>
@@ -847,7 +847,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
               colors: data.datasets[0].colors,
               barPaddingTop: barPaddingTop,
               barPaddingRight: barPaddingRight,
-              roundingData
+              ceilingData
             })}
           </G>
           <G>
@@ -858,7 +858,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                   paddingTop: (paddingTop as number) + barPaddingTop,
                   paddingRight: paddingRight as number,
                   lineColor: underBarLineColor,
-                  roundingData
+                  ceilingData
                 })
               : null}
           </G>
@@ -870,7 +870,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                 paddingTop: (paddingTop as number) + barPaddingTop,
                 paddingRight: paddingRight as number,
                 barPaddingRight: barPaddingRight,
-                roundingData
+                ceilingData
               })}
           </G>
           <G>
@@ -881,7 +881,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                 paddingTop: (paddingTop as number) + barPaddingTop,
                 paddingRight: paddingRight as number,
                 barPaddingRight: barPaddingRight,
-                roundingData
+                ceilingData
               })}
           </G>
           <G>
@@ -893,7 +893,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                   paddingTop: (paddingTop as number) + barPaddingTop,
                   paddingRight: paddingRight as number,
                   ...thresholdConfig,
-                  roundingData
+                  ceilingData
                 })
               : null}
           </G>
@@ -906,7 +906,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                 paddingRight: paddingRight as number,
                 barPaddingTop: barPaddingTop,
                 barPaddingRight: barPaddingRight,
-                roundingData
+                ceilingData
               })}
           </G>
         </Svg>
